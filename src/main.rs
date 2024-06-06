@@ -1,3 +1,4 @@
+use std::env;
 use std::io::{BufRead};
 
 use regex::Regex;
@@ -137,70 +138,84 @@ fn tokenize(s: String) -> TokenizedPGN {
 	res
 }
 
+
+
 fn parse_comment(data: &TokenizedPGN, i: usize) -> (game::Comment, usize) {
 	(game::Comment::new(), i + 1)
 }
 
-fn build_variation(data: &TokenizedPGN, i: usize) -> (game::Game, usize) {
-	(game::Game::new(), i + 1)
-}
-
-fn build_pgn_tree(data: &TokenizedPGN, mut i: usize) -> (Option<game::Game>, usize) {
+fn build_pgn_tree(data: &TokenizedPGN, mut i: usize) -> (
+	Option<game::Game>,
+	bool,
+	usize
+)
+{
 	let mut g = game::Game::new();
 	let total_length = data.len();
 	
-	if i >= total_length {
-		return (None, i);
-	}
-
-	match &data[i].1 {
-		TokenType::MoveNumber { id, side } => {
-			
-			let (result, next) = build_pgn_tree(&data, i + 1);
-			if let Some(rest) = result {
-				g = rest;
-			}
-			i = next;
-		},
-
-		TokenType::Text => {
-			g.set_move_text(data[i].0.clone());
-			
-			let (result, next) = build_pgn_tree(&data, i + 1);
-			if let Some(rest) = result {
-				g.set_next_move(rest);
-			}
-			i = next;
-		},
-
-		TokenType::CommentDelim { open: o } => {
-			if *o == false {
-				panic!("Unexpected closed comment delimiter at token {i}");
-			}
-
-			let (com, next) = parse_comment(&data, i + 1);
-				g.set_comment(com);
-			i = next;
-		},
-
-		TokenType::VariantDelim { open: o } => {
-			if *o == false {
-				panic!("Unexpected closed variation delimiter at token {i}");
-			}
-
-			let (var, next) = build_variation(&data, 3);
-			g.add_variation(var);
-			i = next;
-		},
+	while i < total_length {
+		println!("{i} -- {:#?}", data[i]);
 		
-		_ => { }
+		match &data[i].1 {
+			TokenType::MoveNumber { id, side } => {
+				i += 1;
+			},
+			
+			TokenType::Text => {
+				g.set_move_text(data[i].0.clone());
+				
+				let (result, finished_variation, next) = build_pgn_tree(&data, i + 1);
+				if let Some(rest) = result {
+					g.set_next_move(rest);
+				}
+				i = next;
+				
+				if finished_variation {
+					return (Some(g), true, i);
+				}
+			},
+			
+			TokenType::CommentDelim { open: o } => {
+				if *o == false {
+					panic!("Unexpected closed comment delimiter at token {i}");
+				}
+				
+				let (com, next) = parse_comment(&data, i + 1);
+				g.set_comment(com);
+				i = next;
+			},
+			
+			TokenType::VariantDelim { open: true } => {
+				println!("Started a variation at {i}");
+				
+				let (res, _, next) = build_pgn_tree(&data, i + 1);
+				
+				println!("Variation...");
+				println!("{:#?}", res);
+				
+				if let Some(var) = res {
+					println!("Add the variation to the game...");
+					g.add_variation(var);
+				}
+				i = next;
+			},
+			
+			TokenType::VariantDelim { open: false } => {
+				println!("Finished a variation at {i}");
+				return (None, true, i + 1);
+			},
+			
+			_ => {
+				i += 1;
+			}
+		}
 	}
-
-	(Some(g), 0)
+	
+	(None, true, i + 1)
 }
 
-fn main() {
-	let p = "sample_games/fg_01_nv_nc.pgn";
+fn analyze_file(p: String) {
+	println!("Opening file: {p}");
 	let mut entire_file_str = String::new();
 
 	let file = std::fs::File::open(p).expect("Failed to open file");
@@ -214,7 +229,13 @@ fn main() {
 		println!("{:?} -- {:?}", str.0, str.1);
 	}
 
-	if let (Some(game), i) = build_pgn_tree(&res, 0) {
+	if let (Some(game), _, _) = build_pgn_tree(&res, 0) {
 		println!("{:#?}", game);
 	}
+}
+
+fn main() {
+	let args: Vec<String> = env::args().collect();
+	
+	analyze_file(args[1].clone());
 }

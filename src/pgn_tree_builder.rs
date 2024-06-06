@@ -99,6 +99,10 @@ impl PGNTreeBuilder {
 			}
 		}
 		
+		if g.empty_move() {
+			println!("Last move is empty.");
+			return (None, true, i + 1);
+		}
 		(Some(g), true, i + 1)
 	}
 	

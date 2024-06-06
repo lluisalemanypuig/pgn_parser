@@ -24,6 +24,9 @@ impl Game {
 	pub fn get_move(&self) -> &String {
 		&self.game_move
 	}
+	pub fn empty_move(&self) -> bool {
+		self.game_move == "".to_string()
+	}
 
 	pub fn set_move_text(&mut self, text: String) {
 		self.game_move = text;

@@ -5,12 +5,21 @@ use crate::comment;
 
 pub struct PGNTreeBuilder {
 	keep_result: bool,
+	data: tokenizer::TokenizedPGN,
+}
+
+struct ParseResult {
+	pub game: Option<game::Game>,
+	pub comment: Option<comment::Comment>,
+	pub finished_variation: bool,
+	pub next: usize,
 }
 
 impl PGNTreeBuilder {
 	pub fn new() -> PGNTreeBuilder {
 		PGNTreeBuilder {
-			keep_result: true
+			keep_result: true,
+			data: tokenizer::TokenizedPGN::new()
 		}
 	}
 	
@@ -18,98 +27,113 @@ impl PGNTreeBuilder {
 		self.keep_result = use_res;
 	}
 	
-	fn parse_comment(&self, data: &tokenizer::TokenizedPGN, i: usize)
+	pub fn set_data(&mut self, data: tokenizer::TokenizedPGN) {
+		self.data = data;
+	}
+	
+	fn parse_comment(&self, i: usize)
 	-> (comment::Comment, usize)
 	{
 		(comment::Comment::new(), i + 1)
 	}
 	
-	fn build_pgn_tree_rec(
+	fn is_variant_or_comment(&self, i: usize) -> bool {
+		match &self.data[i].1 {
+			tokenizer::TokenType::VariantDelim { open: true } => true,
+			tokenizer::TokenType::CommentDelim { open: true } => true,
+			_ => false
+		}
+	}
+	
+	fn build_game_tree_rec(
 		&self,
-		data: &tokenizer::TokenizedPGN,
-		mut i: usize
+		mut i: usize,
+		depth: usize
 	)
-	->	(Option<game::Game>, bool, usize)
+	->	ParseResult
 	{
-		let mut g = game::Game::new();
-		let total_length = data.len();
+		println!("Token {i}. Depth {depth}");
 		
-		while i < total_length {
-			println!("{i} -- {:#?}", data[i]);
+		if i == self.data.len() {
+			return ParseResult {
+				game: None,
+				comment: None,
+				finished_variation: false,
+				next: self.data.len()
+			};
+		}
+		
+		if let tokenizer::TokenType::MoveNumber { id, side } = &self.data[i].1 {
+			i += 1;
+		}
+		
+		let mut g = game::Game::new();
+		g.set_move_text(self.data[i].0.clone());
+		i += 1;
+		
+		// read a series of variants or a comment.
+		while i < self.data.len() && self.is_variant_or_comment(i) {
 			
-			match &data[i].1 {
-				tokenizer::TokenType::MoveNumber { id, side } => {
-					i += 1;
-				},
-				
-				tokenizer::TokenType::Text => {
-					g.set_move_text(data[i].0.clone());
-					
-					let (result, finished_variation, next) = self.build_pgn_tree_rec(&data, i + 1);
-					if let Some(rest) = result {
-						g.set_next_move(rest);
-					}
-					i = next;
-					
-					if finished_variation {
-						return (Some(g), true, i);
-					}
-				},
-				
-				tokenizer::TokenType::CommentDelim { open: o } => {
-					if *o == false {
-						panic!("Unexpected closed comment delimiter at token {i}");
-					}
-					
-					let (com, next) = self.parse_comment(&data, i + 1);
-					g.set_comment(com);
-					i = next;
-				},
+			match &self.data[i].1 {
 				
 				tokenizer::TokenType::VariantDelim { open: true } => {
-					println!("Started a variation at {i}");
-					
-					let (res, _, next) = self.build_pgn_tree_rec(&data, i + 1);
-					
-					println!("Variation...");
-					println!("{:#?}", res);
-					
-					if let Some(var) = res {
-						println!("Add the variation to the game...");
-						g.add_variation(var);
+					if let ParseResult {
+						game: Some(gg),
+						comment: None,
+						finished_variation: f,
+						next
+					} = self.build_game_tree_rec(i + 1, depth + 1) {
+						g.add_variation(gg);
+						i = next;
 					}
+					else {
+						panic!("Unexpected wrong return");
+					}
+				},
+				
+				tokenizer::TokenType::CommentDelim { open: true } => {
+					let (comment, next) = self.parse_comment(i);
+					g.set_comment(comment);
 					i = next;
 				},
 				
-				tokenizer::TokenType::VariantDelim { open: false } => {
-					println!("Finished a variation at {i}");
-					return (None, true, i + 1);
-				},
-				
-				tokenizer::TokenType::Result { result: _ } => {
-					if self.keep_result {
-						g.set_result(data[i].0.clone());
-					}
-					i += 1;
-				},
-				
-				_ => {
-					i += 1;
-				}
+				_ => { }
 			}
 		}
 		
-		if g.empty_move() {
-			println!("Last move is empty.");
-			return (None, true, i + 1);
+		if i < self.data.len() {
+			
+			if let tokenizer::TokenType::VariantDelim { open: false } = &self.data[i].1 {
+				return ParseResult {
+					game: Some(g),
+					comment: None,
+					finished_variation: true,
+					next: i + 1
+				};
+			}
+			
+			if let ParseResult {
+				game: Some(next),
+				comment: None,
+				finished_variation: _,
+				next: _
+			}
+			= self.build_game_tree_rec(i, depth + 1) {
+				
+				g.set_next_move(next);
+			}
 		}
-		(Some(g), true, i + 1)
+		
+		ParseResult {
+			game: Some(g),
+			comment: None,
+			finished_variation: false,
+			next: i
+		}
 	}
 	
-	pub fn build_pgn_tree(&self, data: &tokenizer::TokenizedPGN)
-	-> Option<game::Game>
-	{
-		let (res, _, _) = self.build_pgn_tree_rec(&data, 0);
-		res
+	pub fn build_game_tree(&self) -> Option<game::Game> {
+		let parse_result = self.build_game_tree_rec(0, 0);
+		parse_result.game
 	}
 }

@@ -22,9 +22,14 @@ fn analyze_file(p: String, keep_result: bool) {
 	}
 	
 	let mut builder = pgn_tree_builder::PGNTreeBuilder::new();
+	
 	builder.set_keep_result(keep_result);
-	if let Some(game) = builder.build_pgn_tree(&res) {
+	builder.set_data(res);
+	
+	if let Some(game) = builder.build_game_tree() {
 		println!("{:#?}", game);
+		game::print_game(&game);
+		println!("");
 	}
 }
 

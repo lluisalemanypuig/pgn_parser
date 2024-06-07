@@ -6,20 +6,21 @@ use crate::comment;
 pub struct PGNTreeBuilder {
 	keep_result: bool,
 	data: tokenizer::TokenizedPGN,
+	pub tab: String
 }
 
 struct ParseResult {
 	pub game: Option<game::Game>,
-	pub comment: Option<comment::Comment>,
-	pub finished_variation: bool,
-	pub next: usize,
+	pub var: bool,
+	pub next: usize
 }
 
 impl PGNTreeBuilder {
 	pub fn new() -> PGNTreeBuilder {
 		PGNTreeBuilder {
 			keep_result: true,
-			data: tokenizer::TokenizedPGN::new()
+			data: tokenizer::TokenizedPGN::new(),
+			tab: String::new()
 		}
 	}
 	
@@ -46,30 +47,54 @@ impl PGNTreeBuilder {
 	}
 	
 	fn build_game_tree_rec(
-		&self,
+		&mut self,
 		mut i: usize,
 		depth: usize
 	)
 	->	ParseResult
 	{
-		println!("Token {i}. Depth {depth}");
+		println!("{}A. Token {i}. Depth {depth} -- {:#?}", self.tab, self.data[i].0);
 		
 		if i == self.data.len() {
 			return ParseResult {
 				game: None,
-				comment: None,
-				finished_variation: false,
+				var: false,
 				next: self.data.len()
 			};
 		}
 		
 		if let tokenizer::TokenType::MoveNumber { id, side } = &self.data[i].1 {
+			println!("{}|-> This is a move number", self.tab);
 			i += 1;
 		}
 		
+		println!("{}B. Token {i}. Depth {depth} -- {:#?}", self.tab, self.data[i].0);
 		let mut g = game::Game::new();
+		if let tokenizer::TokenType::Result { result: res } = &self.data[i].1 {
+			if self.keep_result {
+				g.set_result(self.data[i].0.clone());
+				return ParseResult {
+					game: Some(g),
+					var: false,
+					next: i
+				};
+			}
+			else {
+				return ParseResult {
+					game: None,
+					var: false,
+					next: i
+				};
+			}
+		}
+		
+		println!("{}|-> This is an actual move", self.tab);
 		g.set_move_text(self.data[i].0.clone());
 		i += 1;
+		
+		if i < self.data.len() {
+			println!("{}C. Token {i}. Depth {depth} -- {:#?}", self.tab, self.data[i].0);
+		}
 		
 		// read a series of variants or a comment.
 		while i < self.data.len() && self.is_variant_or_comment(i) {
@@ -77,17 +102,22 @@ impl PGNTreeBuilder {
 			match &self.data[i].1 {
 				
 				tokenizer::TokenType::VariantDelim { open: true } => {
-					if let ParseResult {
-						game: Some(gg),
-						comment: None,
-						finished_variation: f,
-						next
-					} = self.build_game_tree_rec(i + 1, depth + 1) {
+					println!("{}|-> A new variant started", self.tab);
+					
+					self.tab.push_str("    ");
+					let parse = self.build_game_tree_rec(i + 1, depth + 1);
+					self.tab.replace_range(0..4, "");
+					
+					if let ParseResult { game: Some(gg), var: var, next: next } = parse {
+						
 						g.add_variation(gg);
 						i = next;
+						
+						println!("{}After parsing the variant...", self.tab);
+						println!("{}Next {next}. Token {i}. Depth {depth} -- {:#?}", self.tab, self.data[i].0);
 					}
 					else {
-						panic!("Unexpected wrong return");
+						panic!("{}Unexpected wrong return", self.tab);
 					}
 				},
 				
@@ -101,38 +131,40 @@ impl PGNTreeBuilder {
 			}
 		}
 		
+		let mut is_var = false;
 		if i < self.data.len() {
+			println!("{}D. After reading all the variants and comments", self.tab);
+			println!("{}E. Token {i}. Depth {depth} -- {:#?}", self.tab, self.data[i].0);
 			
 			if let tokenizer::TokenType::VariantDelim { open: false } = &self.data[i].1 {
+				println!("{}F. A variant has been closed. Next {}", self.tab, i);
 				return ParseResult {
 					game: Some(g),
-					comment: None,
-					finished_variation: true,
+					var: true,
 					next: i + 1
 				};
 			}
 			
-			if let ParseResult {
-				game: Some(next),
-				comment: None,
-				finished_variation: _,
-				next: _
-			}
-			= self.build_game_tree_rec(i, depth + 1) {
-				
-				g.set_next_move(next);
+			println!("{}G. A new move comes", self.tab);
+			self.tab.push_str("    ");
+			let parse = self.build_game_tree_rec(i, depth + 1);
+			self.tab.replace_range(0..4, "");
+			
+			if let ParseResult { game: Some(gg), var: var, next: next } = parse {
+				g.set_next_move(gg);
+				is_var = var;
+				i = next;
 			}
 		}
 		
 		ParseResult {
 			game: Some(g),
-			comment: None,
-			finished_variation: false,
+			var: is_var,
 			next: i
 		}
 	}
 	
-	pub fn build_game_tree(&self) -> Option<game::Game> {
+	pub fn build_game_tree(&mut self) -> Option<game::Game> {
 		let parse_result = self.build_game_tree_rec(0, 0);
 		parse_result.game
 	}

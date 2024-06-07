@@ -17,8 +17,8 @@ fn analyze_file(p: String, keep_result: bool) {
 	}
 	
 	let res = tokenizer::tokenize(entire_file_str);
-	for str in res.iter() {
-		println!("{:?} -- {:?}", str.0, str.1);
+	for (i, str) in res.iter().enumerate() {
+		println!("{i} :: {:?} -- {:?}", str.0, str.1);
 	}
 	
 	let mut builder = pgn_tree_builder::PGNTreeBuilder::new();

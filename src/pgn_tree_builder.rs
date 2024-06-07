@@ -11,7 +11,6 @@ pub struct PGNTreeBuilder {
 
 struct ParseResult {
 	pub game: Option<game::Game>,
-	pub var: bool,
 	pub next: usize
 }
 
@@ -56,11 +55,7 @@ impl PGNTreeBuilder {
 		println!("{}A. Token {i}. Depth {depth} -- {:#?}", self.tab, self.data[i].0);
 		
 		if i == self.data.len() {
-			return ParseResult {
-				game: None,
-				var: false,
-				next: self.data.len()
-			};
+			return ParseResult { game: None, next: self.data.len() };
 		}
 		
 		if let tokenizer::TokenType::MoveNumber { id, side } = &self.data[i].1 {
@@ -73,18 +68,11 @@ impl PGNTreeBuilder {
 		if let tokenizer::TokenType::Result { result: res } = &self.data[i].1 {
 			if self.keep_result {
 				g.set_result(self.data[i].0.clone());
-				return ParseResult {
-					game: Some(g),
-					var: false,
-					next: i
-				};
+				
+				return ParseResult { game: Some(g), next: i };
 			}
 			else {
-				return ParseResult {
-					game: None,
-					var: false,
-					next: i
-				};
+				return ParseResult { game: None, next: i };
 			}
 		}
 		
@@ -108,7 +96,7 @@ impl PGNTreeBuilder {
 					let parse = self.build_game_tree_rec(i + 1, depth + 1);
 					self.tab.replace_range(0..4, "");
 					
-					if let ParseResult { game: Some(gg), var: var, next: next } = parse {
+					if let ParseResult { game: Some(gg), next: next } = parse {
 						
 						g.add_variation(gg);
 						i = next;
@@ -131,18 +119,14 @@ impl PGNTreeBuilder {
 			}
 		}
 		
-		let mut is_var = false;
 		if i < self.data.len() {
 			println!("{}D. After reading all the variants and comments", self.tab);
 			println!("{}E. Token {i}. Depth {depth} -- {:#?}", self.tab, self.data[i].0);
 			
 			if let tokenizer::TokenType::VariantDelim { open: false } = &self.data[i].1 {
 				println!("{}F. A variant has been closed. Next {}", self.tab, i);
-				return ParseResult {
-					game: Some(g),
-					var: true,
-					next: i + 1
-				};
+				
+				return ParseResult { game: Some(g), next: i + 1 };
 			}
 			
 			println!("{}G. A new move comes", self.tab);
@@ -150,18 +134,13 @@ impl PGNTreeBuilder {
 			let parse = self.build_game_tree_rec(i, depth + 1);
 			self.tab.replace_range(0..4, "");
 			
-			if let ParseResult { game: Some(gg), var: var, next: next } = parse {
+			if let ParseResult { game: Some(gg), next: next } = parse {
 				g.set_next_move(gg);
-				is_var = var;
 				i = next;
 			}
 		}
 		
-		ParseResult {
-			game: Some(g),
-			var: is_var,
-			next: i
-		}
+		ParseResult { game: Some(g), next: i }
 	}
 	
 	pub fn build_game_tree(&mut self) -> Option<game::Game> {

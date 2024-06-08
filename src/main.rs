@@ -36,5 +36,6 @@ fn analyze_file(p: String, keep_result: bool) {
 fn main() {
 	let args: Vec<String> = env::args().collect();
 	
-	analyze_file(args[1].clone(), if args[2] == "true".to_string() { true } else { false });
+	let keep = if args[2] == "true".to_string() { true } else { false };
+	analyze_file(args[1].clone(), keep);
 }

@@ -27,8 +27,15 @@ fn classify_char(c: char) -> CharacterType {
 	}
 }
 
-#[derive(Debug)]
+#[derive(Debug,PartialEq,Clone)]
 pub enum Side { White, Black }
+
+pub fn other_side(s: &Side) -> Side {
+	match s {
+		Side::White => Side::Black,
+		Side::Black => Side::White
+	}
+}
 
 #[derive(Debug)]
 pub enum ResultType { White, Draw, Black }
@@ -76,17 +83,19 @@ fn is_result_tag(str: &String) -> Option<TokenType> {
 	None
 }
 
-fn add_token(str: String, res: &mut TokenizedPGN) {
-	if let Some(move_number) = is_move_number(&str) {
-		res.push( (str, move_number) );
+fn add_token(s: String, res: &mut TokenizedPGN) {
+	if let Some(move_number) = is_move_number(&s) {
+		res.push( (s, move_number) );
 		return;
 	}
-	if let Some(result) = is_result_tag(&str) {
-		res.push( (str, result) );
+	if let Some(result) = is_result_tag(&s) {
+		res.push( (s, result) );
 		return;
 	}
 	
-	res.push( (str, TokenType::Text) );
+	if s != "".to_string() {
+		res.push( (s, TokenType::Text) );
+	}
 }
 
 pub fn tokenize(s: String) -> TokenizedPGN {

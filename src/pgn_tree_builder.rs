@@ -48,11 +48,12 @@ impl PGNTreeBuilder {
 	fn build_game_tree_rec(
 		&mut self,
 		mut i: usize,
-		depth: usize
+		move_number: u32,
+		side: tokenizer::Side
 	)
 	->	ParseResult
 	{
-		println!("{}A. Token {i}. Depth {depth} -- {:#?}", self.tab, self.data[i].0);
+		println!("{}A. Token {i}. Depth {move_number} -- {:#?}", self.tab, self.data[i].0);
 		
 		if i == self.data.len() {
 			return ParseResult { game: None, next: self.data.len() };
@@ -63,7 +64,7 @@ impl PGNTreeBuilder {
 			i += 1;
 		}
 		
-		println!("{}B. Token {i}. Depth {depth} -- {:#?}", self.tab, self.data[i].0);
+		println!("{}B. Token {i}. Depth {move_number} -- {:#?}", self.tab, self.data[i].0);
 		let mut g = game::Game::new();
 		if let tokenizer::TokenType::Result { result: res } = &self.data[i].1 {
 			if self.keep_result {
@@ -77,11 +78,11 @@ impl PGNTreeBuilder {
 		}
 		
 		println!("{}|-> This is an actual move", self.tab);
-		g.set_move_text(self.data[i].0.clone());
+		g.set_move_text(self.data[i].0.clone(), &side, move_number);
 		i += 1;
 		
 		if i < self.data.len() {
-			println!("{}C. Token {i}. Depth {depth} -- {:#?}", self.tab, self.data[i].0);
+			println!("{}C. Token {i}. Depth {move_number} -- {:#?}", self.tab, self.data[i].0);
 		}
 		
 		// read a series of variants or a comment.
@@ -93,7 +94,11 @@ impl PGNTreeBuilder {
 					println!("{}|-> A new variant started", self.tab);
 					
 					self.tab.push_str("    ");
-					let parse = self.build_game_tree_rec(i + 1, depth + 1);
+					let parse = self.build_game_tree_rec(
+						i + 1,
+						move_number,
+						side.clone()
+					);
 					self.tab.replace_range(0..4, "");
 					
 					if let ParseResult { game: Some(gg), next: next } = parse {
@@ -101,8 +106,10 @@ impl PGNTreeBuilder {
 						g.add_variation(gg);
 						i = next;
 						
-						println!("{}After parsing the variant...", self.tab);
-						println!("{}Next {next}. Token {i}. Depth {depth} -- {:#?}", self.tab, self.data[i].0);
+						if i < self.data.len() {
+							println!("{}After parsing the variant...", self.tab);
+							println!("{}Next {next}. Token {i}. Depth {move_number} -- {:#?}", self.tab, self.data[i].0);
+						}
 					}
 					else {
 						panic!("{}Unexpected wrong return", self.tab);
@@ -121,7 +128,7 @@ impl PGNTreeBuilder {
 		
 		if i < self.data.len() {
 			println!("{}D. After reading all the variants and comments", self.tab);
-			println!("{}E. Token {i}. Depth {depth} -- {:#?}", self.tab, self.data[i].0);
+			println!("{}E. Token {i}. Depth {move_number} -- {:#?}", self.tab, self.data[i].0);
 			
 			if let tokenizer::TokenType::VariantDelim { open: false } = &self.data[i].1 {
 				println!("{}F. A variant has been closed. Next {}", self.tab, i);
@@ -131,7 +138,12 @@ impl PGNTreeBuilder {
 			
 			println!("{}G. A new move comes", self.tab);
 			self.tab.push_str("    ");
-			let parse = self.build_game_tree_rec(i, depth + 1);
+			let next_side = tokenizer::other_side(&side);
+			let parse = self.build_game_tree_rec(
+				i,
+				move_number + if next_side == tokenizer::Side::White { 1 } else { 0 },
+				next_side
+			);
 			self.tab.replace_range(0..4, "");
 			
 			if let ParseResult { game: Some(gg), next: next } = parse {
@@ -144,7 +156,7 @@ impl PGNTreeBuilder {
 	}
 	
 	pub fn build_game_tree(&mut self) -> Option<game::Game> {
-		let parse_result = self.build_game_tree_rec(0, 0);
+		let parse_result = self.build_game_tree_rec(0, 1, tokenizer::Side::White);
 		parse_result.game
 	}
 }

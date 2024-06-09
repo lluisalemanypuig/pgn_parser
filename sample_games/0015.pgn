@@ -1,0 +1,1 @@
+1. d4 { [%clk 9] [%eval -9] A A } (1. e4 { [%clk 9] [%eval -9] B B } e5 { [%clk 9] [%eval -9] C C }) (1. f4 { [%clk 9] [%eval -9] D D } Cc6) 1... d5 { [%clk 9] [%eval -9] E E }

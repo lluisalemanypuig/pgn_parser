@@ -136,8 +136,6 @@ impl Game {
 			}
 		}
 		if let Some(res) = &self.m_main_line_next {
-			let next_side = tokenizer::other_side(&self.m_side.as_ref().unwrap());
-			
 			s.push_str(" ");
 			s.push_str(&res.to_string_rec(exist_variations));
 		}

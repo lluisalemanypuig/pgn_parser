@@ -82,7 +82,8 @@ pub enum TokenType {
 	Result { result: ResultType }
 }
 
-pub type TokenizedPGN = Vec<(String, TokenType)>;
+pub type AllTokens = Vec<String>;
+pub type AllTokenTypes = Vec<TokenType>;
 
 fn is_move_number(str: &String) -> Option<TokenType> {
 	let re = Regex::new(r"^(?<move_number>[0-9]+)(?<side>\.+)$").unwrap();
@@ -115,23 +116,27 @@ fn is_result_tag(str: &String) -> Option<TokenType> {
 	None
 }
 
-fn add_token(s: String, res: &mut TokenizedPGN) {
+fn add_token(s: String, tokens: &mut AllTokens, token_types: &mut AllTokenTypes) {
 	if let Some(move_number) = is_move_number(&s) {
-		res.push( (s, move_number) );
+		tokens.push(s);
+		token_types.push(move_number);
 		return;
 	}
 	if let Some(result) = is_result_tag(&s) {
-		res.push( (s, result) );
+		tokens.push(s);
+		token_types.push(result);
 		return;
 	}
 	
 	if s != "".to_string() {
-		res.push( (s, TokenType::Text) );
+		tokens.push(s);
+		token_types.push(TokenType::Text);
 	}
 }
 
-pub fn tokenize(s: String) -> TokenizedPGN {
-	let mut res: TokenizedPGN = Vec::new();
+pub fn tokenize(s: String) -> (AllTokens, AllTokenTypes) {
+	let mut tokens: AllTokens = Vec::new();
+	let mut token_types: AllTokenTypes = Vec::new();
 
 	let mut next_str: String = String::new();
 	for c in s.chars() {
@@ -140,35 +145,39 @@ pub fn tokenize(s: String) -> TokenizedPGN {
 			CharacterType::Number | CharacterType::Letter | CharacterType::Other => next_str.push(c),
 			CharacterType::Whitespace => {
 				if next_str != "".to_string() {
-					add_token(next_str, &mut res);
+					add_token(next_str, &mut tokens, &mut token_types);
 					next_str = "".to_string();
 				}
 			},
 			CharacterType::Parenthesis(o) => {
 				if next_str != "".to_string() {
-					add_token(next_str, &mut res);
+					add_token(next_str, &mut tokens, &mut token_types);
 				}
-				res.push((c.to_string(), TokenType::VariantDelim{open: o} ));
+				tokens.push(c.to_string());
+				token_types.push(TokenType::VariantDelim{open: o});
 				next_str = "".to_string();
 			},
 			CharacterType::CurlyBracket(o) => {
 				if next_str != "".to_string() {
-					add_token(next_str, &mut res);
+					add_token(next_str, &mut tokens, &mut token_types);
 				}
-				res.push((c.to_string(), TokenType::CommentDelim{open: o} ));
+				tokens.push(c.to_string());
+				token_types.push(TokenType::CommentDelim{open: o});
 				next_str = "".to_string();
 			},
 			CharacterType::SquareBracket(o) => {
 				if next_str != "".to_string() {
-					add_token(next_str, &mut res);
+					add_token(next_str, &mut tokens, &mut token_types);
 				}
-				res.push((c.to_string(), TokenType::TagDelim{open: o} ));
+				tokens.push(c.to_string());
+				token_types.push(TokenType::TagDelim{open: o});
 				next_str = "".to_string();
 			}
 		}
 	}
-	add_token(next_str, &mut res);
+	add_token(next_str, &mut tokens, &mut token_types);
 
-	res
+	assert_eq!(tokens.len(), token_types.len());
+	(tokens, token_types)
 }
 

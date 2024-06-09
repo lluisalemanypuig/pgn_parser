@@ -48,15 +48,15 @@ fn analyze_file(p: String, keep_result: bool) {
 		entire_file_str.push_str( line.unwrap().trim() );
 	}
 	
-	let res = tokenizer::tokenize(entire_file_str);
-	for (i, str) in res.iter().enumerate() {
-		println!("{i} :: {:?} -- {:?}", str.0, str.1);
+	let (all_tokens, all_token_types) = tokenizer::tokenize(entire_file_str);
+	for i in 0..all_tokens.len() {
+		println!("{i} :: {:?} -- {:?}", all_tokens[i], all_token_types[i]);
 	}
 	
 	let mut builder = pgn_tree_builder::PGNTreeBuilder::new();
 	
 	builder.set_keep_result(keep_result);
-	builder.set_data(res);
+	builder.set_token_list(all_tokens, all_token_types);
 	
 	if let Some(game) = builder.build_game_tree() {
 		println!("{:#?}", game);

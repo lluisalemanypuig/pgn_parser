@@ -129,46 +129,41 @@ impl PGNTreeBuilder {
 		
 		if i < self.m_num_tokens {
 			println!("{}C. Token {i}. Depth {move_number} -- {:#?}", self.tab, self.m_tokens[i]);
+			
+			if let tokenizer::TokenType::CommentDelim { open: true } = &self.m_token_types[i] {
+				let (comment, next) = self.parse_comment(i);
+				g.set_comment(comment);
+				i = next;
+			}
 		}
 		
 		// read a series of variants or a comment.
 		while i < self.m_num_tokens && self.is_variant_or_comment(i) {
 			
-			match &self.m_token_types[i] {
+			if let tokenizer::TokenType::VariantDelim { open: true } = &self.m_token_types[i] {
+				println!("{}|-> A new variant started", self.tab);
 				
-				tokenizer::TokenType::VariantDelim { open: true } => {
-					println!("{}|-> A new variant started", self.tab);
-					
-					self.tab.push_str("    ");
-					let parse = self.build_game_tree_rec(
-						i + 1,
-						move_number,
-						side.clone()
-					);
-					self.tab.replace_range(0..4, "");
-					
-					if let ParseResult { game: Some(gg), next } = parse {
-						
-						g.add_variation(gg);
-						i = next;
-						
-						if i < self.m_num_tokens {
-							println!("{}After parsing the variant...", self.tab);
-							println!("{}Next {next}. Token {i}. Depth {move_number} -- {:#?}", self.tab, self.m_tokens[i]);
-						}
-					}
-					else {
-						panic!("{}Unexpected wrong return", self.tab);
-					}
-				},
+				self.tab.push_str("    ");
+				let parse = self.build_game_tree_rec(
+					i + 1,
+					move_number,
+					side.clone()
+				);
+				self.tab.replace_range(0..4, "");
 				
-				tokenizer::TokenType::CommentDelim { open: true } => {
-					let (comment, next) = self.parse_comment(i);
-					g.set_comment(comment);
+				if let ParseResult { game: Some(gg), next } = parse {
+					
+					g.add_variation(gg);
 					i = next;
-				},
-				
-				_ => { }
+					
+					if i < self.m_num_tokens {
+						println!("{}After parsing the variant...", self.tab);
+						println!("{}Next {next}. Token {i}. Depth {move_number} -- {:#?}", self.tab, self.m_tokens[i]);
+					}
+				}
+				else {
+					panic!("{}Unexpected wrong return", self.tab);
+				}
 			}
 		}
 		

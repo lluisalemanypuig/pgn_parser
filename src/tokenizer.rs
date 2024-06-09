@@ -99,21 +99,22 @@ fn is_move_number(str: &String) -> Option<TokenType> {
 }
 
 fn is_result_tag(str: &String) -> Option<TokenType> {
-	if str.contains("-") {
-		if str == "1-0" {
-			return Some(TokenType::Result { result: ResultType::White });
-		}
-		else if str == "1/2-1/2" {
-			return Some(TokenType::Result { result: ResultType::Draw });
-		}
-		else if str == "0-1" {
-			return Some(TokenType::Result { result: ResultType::Black });
-		}
-		else {
-			return None;
-		}
+	if !str.contains("-") {
+		return None;
 	}
-	None
+	
+	if str == "1-0" {
+		return Some(TokenType::Result { result: ResultType::White })
+	}
+	else if str == "1/2-1/2" {
+		return Some(TokenType::Result { result: ResultType::Draw })
+	}
+	else if str == "0-1" {
+		return Some(TokenType::Result { result: ResultType::Black })
+	}
+	else {
+		return None
+	}
 }
 
 fn add_token(s: String, tokens: &mut AllTokens, token_types: &mut AllTokenTypes) {

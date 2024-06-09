@@ -42,7 +42,7 @@ pub struct Game {
 	
 	m_main_line_next: Option<Box<Game>>,
 	m_variations: Vec<Game>,
-	m_comment: comment::Comment,
+	m_comment: Option<comment::Comment>,
 }
 
 impl Game {
@@ -50,12 +50,12 @@ impl Game {
 		Game {
 			m_game_move: "".to_string(),
 			m_is_result: false,
-			m_move_number: 1,
-			m_side: Some(tokenizer::Side::White),
+			m_move_number: 0,
+			m_side: None,
 			
 			m_main_line_next: None,
 			m_variations: Vec::new(),
-			m_comment: comment::Comment::new(),
+			m_comment: None,
 		}
 	}
 	
@@ -87,7 +87,7 @@ impl Game {
 	}
 
 	pub fn set_comment(&mut self, comment: comment::Comment) {
-		self.m_comment = comment;
+		self.m_comment = Some(comment);
 	}
 	
 	/* GETTERS */
@@ -117,15 +117,31 @@ impl Game {
 			s.push_str( &self.m_move_number.to_string() );
 			s.push_str(". ");
 		}
-		else {
-			
-			if show_move_number {
-				s.push_str( &self.m_move_number.to_string() );
-				s.push_str("... ");
-			}
+		else if show_move_number {
+			s.push_str( &self.m_move_number.to_string() );
+			s.push_str("... ");
 		}
 		
 		s.push_str( &self.m_game_move.clone() );
+		
+		if self.m_comment.is_some() {
+			s.push_str(" { ");
+			let com = self.m_comment.as_ref().unwrap();
+			
+			for tag in com.get_tags().iter() {
+				s.push_str("[");
+				s.push_str(&tag.0);
+				s.push_str(" ");
+				s.push_str(&tag.1);
+				s.push_str("] ");
+			}
+			
+			s.push_str(com.get_text());
+			if com.get_text() != &"".to_string() {
+				s.push_str(" ");
+			}
+			s.push_str("}");
+		}
 		
 		let exist_variations = self.m_variations.len() > 0;
 		if exist_variations {

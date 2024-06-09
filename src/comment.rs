@@ -32,15 +32,29 @@
 
 #[derive(Debug)]
 pub struct Comment {
-	pub text: String,
-	pub tags: Vec<(String, String)>
+	m_text: String,
+	m_tags: Vec<(String, String)>
 }
 
 impl Comment {
 	pub fn new() -> Comment {
 		Comment {
-			text: String::new(),
-			tags: Vec::new()
+			m_text: String::new(),
+			m_tags: Vec::new()
 		}
+	}
+	
+	/* GETTERS */
+	
+	pub fn get_text(&self) -> &String { &self.m_text }
+	pub fn get_tags(&self) -> &Vec<(String,String)> { &self.m_tags }
+	
+	/* MODIFIERS */
+	
+	pub fn set_text(&mut self, text: String) {
+		self.m_text = text;
+	}
+	pub fn add_tag(&mut self, tag_name: String, tag_text: String) {
+		self.m_tags.push((tag_name, tag_text));
 	}
 }

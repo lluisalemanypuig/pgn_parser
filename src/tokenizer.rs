@@ -69,10 +69,10 @@ pub fn other_side(s: &Side) -> Side {
 	}
 }
 
-#[derive(Debug)]
+#[derive(Debug,PartialEq)]
 pub enum ResultType { White, Draw, Black }
 
-#[derive(Debug)]
+#[derive(Debug,PartialEq)]
 pub enum TokenType {
 	VariantDelim { open: bool },
 	CommentDelim { open: bool },

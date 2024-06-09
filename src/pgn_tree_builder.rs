@@ -103,14 +103,16 @@ impl PGNTreeBuilder {
 			return ParseResult { game: None, next: self.m_num_tokens };
 		}
 		
-		if let tokenizer::TokenType::MoveNumber { id, side } = &self.m_token_types[i] {
+		if let tokenizer::TokenType::MoveNumber { id, side: sid } = &self.m_token_types[i] {
 			println!("{}|-> This is a move number", self.tab);
+			assert_eq!(move_number, *id);
+			assert_eq!(side, *sid);
 			i += 1;
 		}
 		
 		println!("{}B. Token {i}. Depth {move_number} -- {:#?}", self.tab, self.m_tokens[i]);
 		let mut g = game::Game::new();
-		if let tokenizer::TokenType::Result { result: res } = &self.m_token_types[i] {
+		if let tokenizer::TokenType::Result { result: _ } = &self.m_token_types[i] {
 			if self.m_keep_result {
 				g.set_result(self.m_tokens[i].clone());
 				
@@ -145,7 +147,7 @@ impl PGNTreeBuilder {
 					);
 					self.tab.replace_range(0..4, "");
 					
-					if let ParseResult { game: Some(gg), next: next } = parse {
+					if let ParseResult { game: Some(gg), next } = parse {
 						
 						g.add_variation(gg);
 						i = next;
@@ -190,7 +192,7 @@ impl PGNTreeBuilder {
 			);
 			self.tab.replace_range(0..4, "");
 			
-			if let ParseResult { game: Some(gg), next: next } = parse {
+			if let ParseResult { game: Some(gg), next } = parse {
 				g.set_next_move(gg);
 				i = next;
 			}

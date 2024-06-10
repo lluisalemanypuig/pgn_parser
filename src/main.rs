@@ -35,6 +35,7 @@ use std::io::{BufRead};
 
 mod comment;
 mod game;
+mod game_formatter;
 mod tokenizer;
 mod pgn_tree_builder;
 
@@ -60,7 +61,14 @@ fn analyze_file(p: String, keep_result: bool) {
 	
 	if let Some(game) = builder.build_game_tree() {
 		println!("{:#?}", game);
-		game::print_game(&game);
+		
+		let res = game_formatter::GameFormatter::new()
+			.set_print_comments(true)
+			.set_print_variants(true)
+			.set_print_result(true)
+			.to_string(&game);
+
+		println!("{res}");
 		println!("");
 	}
 }

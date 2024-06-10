@@ -42,7 +42,7 @@ pub struct Game {
 	
 	m_main_line_next: Option<Box<Game>>,
 	m_variations: Vec<Game>,
-	m_comment: Vec<comment::Comment>,
+	m_comments: Vec<comment::Comment>,
 }
 
 impl Game {
@@ -55,7 +55,7 @@ impl Game {
 			
 			m_main_line_next: None,
 			m_variations: Vec::new(),
-			m_comment: Vec::new(),
+			m_comments: Vec::new(),
 		}
 	}
 	
@@ -87,79 +87,18 @@ impl Game {
 	}
 
 	pub fn add_comment(&mut self, comment: comment::Comment) {
-		self.m_comment.push(comment);
+		self.m_comments.push(comment);
 	}
 	
 	/* GETTERS */
 	
-	pub fn get_move_text(&self) -> &String {
-		&self.m_game_move
-	}
-	pub fn get_move(&self) -> &Option<Box<Game>> {
-		&self.m_main_line_next
-	}
-	pub fn empty_move(&self) -> bool {
-		self.m_game_move == "".to_string()
-	}
-	pub fn get_variations(&self) -> &Vec<Game> {
-		&self.m_variations
-	}
+	pub fn get_side(&self) -> &Option<tokenizer::Side> { &self.m_side }
+	pub fn get_move_text(&self) -> &String { &self.m_game_move }
+	pub fn get_move_number(&self) -> &u32 { &self.m_move_number }
+	pub fn get_next_move(&self) -> &Option<Box<Game>> { &self.m_main_line_next }
+	pub fn is_move_empty(&self) -> bool { !self.is_result() && self.m_game_move == "".to_string() }
+	pub fn is_result(&self) -> bool { self.m_is_result }
+	pub fn get_variations(&self) -> &Vec<Game> { &self.m_variations }
+	pub fn get_comments(&self) -> &Vec<comment::Comment> { &self.m_comments }
 	
-	pub fn to_string_rec(&self, show_move_number: bool) -> String {
-		let mut s = String::new();
-		
-		if self.m_side == Some(tokenizer::Side::White) {
-			s.push_str( &self.m_move_number.to_string() );
-			s.push_str(". ");
-		}
-		else if show_move_number {
-			s.push_str( &self.m_move_number.to_string() );
-			s.push_str("... ");
-		}
-		
-		s.push_str( &self.m_game_move.clone() );
-		
-		let mut show_num_next_move = false;
-
-		for c in self.m_comment.iter() {
-			show_num_next_move = true;
-			s.push_str(" { ");
-			
-			for tag in c.get_tags().iter() {
-				s.push_str("[");
-				s.push_str(&tag.0);
-				s.push_str(" ");
-				s.push_str(&tag.1);
-				s.push_str("] ");
-			}
-			
-			s.push_str(c.get_text());
-			if c.get_text() != &"".to_string() {
-				s.push_str(" ");
-			}
-			s.push_str("}");
-		}
-		
-		for var in self.get_variations().iter() {
-			show_num_next_move = true;
-			s.push_str(" (");
-			s.push_str(&var.to_string_rec( true ));
-			s.push_str(")");
-		}
-
-		if let Some(res) = &self.m_main_line_next {
-			s.push_str(" ");
-			s.push_str(&res.to_string_rec(show_num_next_move));
-		}
-		
-		s
-	}
-	
-	pub fn to_string(&self) -> String {
-		self.to_string_rec( false )
-	}
-}
-
-pub fn print_game(g: &Game) {
-	print!("'{}'", g.to_string());
 }

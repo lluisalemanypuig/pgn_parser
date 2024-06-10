@@ -214,48 +214,48 @@ impl PGNTreeBuilder {
 		g.set_move_text(self.remove_token(i), &side, move_number);
 		i += 1;
 		
-		if i < self.m_num_tokens {
-			println!("{}C. Token {i}. Depth {move_number} -- {:#?}", self.m_tab, self.m_tokens[self.token_index(i)]);
-			
-			if let tokenizer::TokenType::CommentDelim { open: true } = &self.m_token_types[i] {
-				println!("{}This is a comment", self.m_tab);
-				self.remove_token(i);
-				i += 1;
-				
-				let (comment, next) = self.parse_comment(i);
-				g.set_comment(comment);
-				i = next;
-			}
-		}
-		
 		// read a series of variants or a comment.
 		while i < self.m_num_tokens && self.is_variant_or_comment(i) {
 			
-			if let tokenizer::TokenType::VariantDelim { open: true } = &self.m_token_types[i] {
-				println!("{}|-> A new variant started", self.m_tab);
-				self.remove_token(i);
-				
-				self.m_tab.push_str("    ");
-				let parse = self.build_game_tree_rec(
-					i + 1,
-					move_number,
-					side.clone()
-				);
-				self.m_tab.replace_range(0..4, "");
-				
-				if let ParseResult { game: Some(gg), next } = parse {
+			match &self.m_token_types[i] {
+				tokenizer::TokenType::VariantDelim { open: true } => {
+					println!("{}|-> A new variant started", self.m_tab);
+					self.remove_token(i);
 					
-					g.add_variation(gg);
-					i = next;
+					self.m_tab.push_str("    ");
+					let parse = self.build_game_tree_rec(
+						i + 1,
+						move_number,
+						side.clone()
+					);
+					self.m_tab.replace_range(0..4, "");
 					
-					if i < self.m_num_tokens {
-						println!("{}After parsing the variant...", self.m_tab);
-						println!("{}Next {next}. Token {i}. Depth {move_number} -- {:#?}", self.m_tab, self.m_tokens[self.token_index(i)]);
+					if let ParseResult { game: Some(gg), next } = parse {
+						
+						g.add_variation(gg);
+						i = next;
+						
+						if i < self.m_num_tokens {
+							println!("{}After parsing the variant...", self.m_tab);
+							println!("{}Next {next}. Token {i}. Depth {move_number} -- {:#?}", self.m_tab, self.m_tokens[self.token_index(i)]);
+						}
 					}
+					else {
+						panic!("{}Unexpected wrong return", self.m_tab);
+					}
+				},
+
+				tokenizer::TokenType::CommentDelim { open: true } => {
+					println!("{}This is a comment", self.m_tab);
+					self.remove_token(i);
+					i += 1;
+					
+					let (comment, next) = self.parse_comment(i);
+					g.add_comment(comment);
+					i = next;
 				}
-				else {
-					panic!("{}Unexpected wrong return", self.m_tab);
-				}
+
+				_ => {}
 			}
 		}
 		

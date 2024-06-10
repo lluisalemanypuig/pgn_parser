@@ -42,7 +42,7 @@ pub struct Game {
 	
 	m_main_line_next: Option<Box<Game>>,
 	m_variations: Vec<Game>,
-	m_comment: Option<comment::Comment>,
+	m_comment: Vec<comment::Comment>,
 }
 
 impl Game {
@@ -55,7 +55,7 @@ impl Game {
 			
 			m_main_line_next: None,
 			m_variations: Vec::new(),
-			m_comment: None,
+			m_comment: Vec::new(),
 		}
 	}
 	
@@ -86,8 +86,8 @@ impl Game {
 		self.m_variations.push(variation);
 	}
 
-	pub fn set_comment(&mut self, comment: comment::Comment) {
-		self.m_comment = Some(comment);
+	pub fn add_comment(&mut self, comment: comment::Comment) {
+		self.m_comment.push(comment);
 	}
 	
 	/* GETTERS */
@@ -101,7 +101,7 @@ impl Game {
 	pub fn empty_move(&self) -> bool {
 		self.m_game_move == "".to_string()
 	}
-	pub fn get_m_variations(&self) -> &Vec<Game> {
+	pub fn get_variations(&self) -> &Vec<Game> {
 		&self.m_variations
 	}
 	
@@ -124,11 +124,13 @@ impl Game {
 		
 		s.push_str( &self.m_game_move.clone() );
 		
-		if self.m_comment.is_some() {
+		let mut show_num_next_move = false;
+
+		for c in self.m_comment.iter() {
+			show_num_next_move = true;
 			s.push_str(" { ");
-			let com = self.m_comment.as_ref().unwrap();
 			
-			for tag in com.get_tags().iter() {
+			for tag in c.get_tags().iter() {
 				s.push_str("[");
 				s.push_str(&tag.0);
 				s.push_str(" ");
@@ -136,24 +138,23 @@ impl Game {
 				s.push_str("] ");
 			}
 			
-			s.push_str(com.get_text());
-			if com.get_text() != &"".to_string() {
+			s.push_str(c.get_text());
+			if c.get_text() != &"".to_string() {
 				s.push_str(" ");
 			}
 			s.push_str("}");
 		}
 		
-		let exist_variations = self.m_variations.len() > 0;
-		if exist_variations {
-			for var in self.m_variations.iter() {
-				s.push_str(" (");
-				s.push_str(&var.to_string_rec( true ));
-				s.push_str(")");
-			}
+		for var in self.get_variations().iter() {
+			show_num_next_move = true;
+			s.push_str(" (");
+			s.push_str(&var.to_string_rec( true ));
+			s.push_str(")");
 		}
+
 		if let Some(res) = &self.m_main_line_next {
 			s.push_str(" ");
-			s.push_str(&res.to_string_rec(exist_variations));
+			s.push_str(&res.to_string_rec(show_num_next_move));
 		}
 		
 		s

@@ -105,12 +105,7 @@ impl Game {
 		&self.m_variations
 	}
 	
-	pub fn to_string_rec(
-		&self,
-		show_move_number: bool
-	)
-	-> String
-	{
+	pub fn to_string_rec(&self, show_move_number: bool) -> String {
 		let mut s = String::new();
 		
 		if self.m_side == Some(tokenizer::Side::White) {

@@ -31,7 +31,7 @@
  ********************************************************************/
 
 use std::env;
-use std::io::{BufRead};
+use std::io::BufRead;
 
 mod comment;
 mod game;

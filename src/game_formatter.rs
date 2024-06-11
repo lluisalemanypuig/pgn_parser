@@ -53,7 +53,7 @@ impl GameFormatter {
 		self.m_print_comments = v;
 		self
 	}
-	pub fn set_print_variants(&mut self, v: bool) -> &mut GameFormatter {
+	pub fn set_print_variation(&mut self, v: bool) -> &mut GameFormatter {
 		self.m_print_variants = v;
 		self
 	}

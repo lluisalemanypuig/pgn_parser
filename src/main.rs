@@ -40,7 +40,6 @@ mod tokenizer;
 mod pgn_tree_builder;
 
 fn analyze_file(p: String, keep_result: bool) {
-	println!("Opening file: {p}");
 	let mut entire_file_str = String::new();
 	
 	let file = std::fs::File::open(p).expect("Failed to open file");
@@ -50,21 +49,18 @@ fn analyze_file(p: String, keep_result: bool) {
 	}
 	
 	let (all_tokens, all_token_types) = tokenizer::tokenize(entire_file_str);
-	for i in 0..all_tokens.len() {
-		println!("{i} :: {:?} -- {:?}", all_tokens[i], all_token_types[i]);
-	}
 	
 	let mut builder = pgn_tree_builder::PGNTreeBuilder::new();
-	
-	builder.set_keep_result(keep_result);
 	builder.set_token_list(all_tokens, all_token_types);
+
+	builder.set_keep_result(keep_result);
 	
 	if let Some(game) = builder.build_game_tree() {
 		println!("{:#?}", game);
 		
 		let res = game_formatter::GameFormatter::new()
 			.set_print_comments(true)
-			.set_print_variants(true)
+			.set_print_variation(true)
 			.set_print_result(true)
 			.to_string(&game);
 

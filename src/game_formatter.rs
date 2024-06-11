@@ -62,9 +62,7 @@ impl GameFormatter {
 		self
 	}
 
-	fn to_string_rec(&self, g: &game::Game, show_move_number: bool) -> String {
-		let mut s = String::new();
-		
+	fn to_string_rec(&self, g: &game::Game, show_move_number: bool, s: &mut String) {
 		if show_move_number {
 			if let Some(side) = g.get_side() {
 				s.push_str(&g.get_move_number().to_string());
@@ -77,13 +75,11 @@ impl GameFormatter {
 			}
 		}
 		
-		if !g.is_result() || self.m_print_result {
-			s.push_str(g.get_move_text());
-		}
+		s.push_str(g.get_move_text());
 		
 		let mut show_num_next_move = false;
 
-		if self.m_print_result {
+		if self.m_print_comments {
 			for c in g.get_comments().iter() {
 				show_num_next_move = true;
 				s.push_str(" { ");
@@ -96,6 +92,7 @@ impl GameFormatter {
 					s.push_str("] ");
 				}
 				
+				println!("C: '{s}'");
 				s.push_str(c.get_text());
 				if c.get_text() != &"".to_string() {
 					s.push_str(" ");
@@ -108,23 +105,26 @@ impl GameFormatter {
 			for var in g.get_variations().iter() {
 				show_num_next_move = true;
 				s.push_str(" (");
-				s.push_str(&self.to_string_rec(&var, true));
+				self.to_string_rec(&var, true, s);
 				s.push_str(")");
 			}
 		}
 
 		if let Some(res) = g.get_next_move() {
-			s.push_str(" ");
-			if let Some(next_side) = res.get_side() {
-				show_num_next_move = show_num_next_move || next_side == &tokenizer::Side::White;
+			println!("{:#?}", res);
+			if !res.is_result() || self.m_print_result {
+				s.push_str(" ");
+				if let Some(next_side) = res.get_side() {
+					show_num_next_move = show_num_next_move || next_side == &tokenizer::Side::White;
+				}
+				self.to_string_rec(&res, show_num_next_move, s);
 			}
-			s.push_str(&self.to_string_rec(&res, show_num_next_move));
 		}
-		
-		s
 	}
 
 	pub fn to_string(&self, g: &game::Game) -> String {
-		self.to_string_rec(g, true)
+		let mut s = String::new();
+		self.to_string_rec(g, true, &mut s);
+		s
 	}
 }

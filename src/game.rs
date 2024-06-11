@@ -96,7 +96,7 @@ impl Game {
 	pub fn get_move_text(&self) -> &String { &self.m_game_move }
 	pub fn get_move_number(&self) -> &u32 { &self.m_move_number }
 	pub fn get_next_move(&self) -> &Option<Box<Game>> { &self.m_main_line_next }
-	pub fn is_move_empty(&self) -> bool { !self.is_result() && self.m_game_move == "".to_string() }
+	//pub fn is_move_empty(&self) -> bool { !self.is_result() && self.m_game_move == "".to_string() }
 	pub fn is_result(&self) -> bool { self.m_is_result }
 	pub fn get_variations(&self) -> &Vec<Game> { &self.m_variations }
 	pub fn get_comments(&self) -> &Vec<comment::Comment> { &self.m_comments }

@@ -256,4 +256,111 @@ mod tests {
 		}
 	}
 
+	#[test]
+	fn sample_0005() {
+		for pc in vec![false, true] {
+		for pr in vec![false, true] {
+			assert_eq!(
+				game_to_string("sample_games/0005.pgn".to_string(), pc, true, pr),
+				"1. d4 (1. e4 e5) (1. f4) 1... d5".to_string()
+			);
+			assert_eq!(
+				game_to_string("sample_games/0005.pgn".to_string(), pc, false, pr),
+				"1. d4 d5".to_string()
+			);
+		}
+		}
+	}
+	#[test]
+	fn sample_0005_r() {
+		for pc in vec![false, true] {
+			assert_eq!(
+				game_to_string("sample_games/0005-r.pgn".to_string(), pc, true, true),
+				"1. d4 (1. e4 e5) (1. f4) 1... d5 0-1".to_string()
+			);
+			assert_eq!(
+				game_to_string("sample_games/0005-r.pgn".to_string(), pc, false, true),
+				"1. d4 d5 0-1".to_string()
+			);
+
+			assert_eq!(
+				game_to_string("sample_games/0005-r.pgn".to_string(), pc, true, false),
+				"1. d4 (1. e4 e5) (1. f4) 1... d5".to_string()
+			);
+			assert_eq!(
+				game_to_string("sample_games/0005-r.pgn".to_string(), pc, false, false),
+				"1. d4 d5".to_string()
+			);
+		}
+	}
+
+	#[test]
+	fn sample_0006() {
+		for pc in vec![false, true] {
+		for pr in vec![false, true] {
+			assert_eq!(
+				game_to_string("sample_games/0006.pgn".to_string(), pc, true, pr),
+				"1. d4 (1. e4 e5) (1. f4 Cc6) 1... d5".to_string()
+			);
+			assert_eq!(
+				game_to_string("sample_games/0006.pgn".to_string(), pc, false, pr),
+				"1. d4 d5".to_string()
+			);
+		}
+		}
+	}
+	#[test]
+	fn sample_0006_r() {
+		for pc in vec![false, true] {
+			assert_eq!(
+				game_to_string("sample_games/0006-r.pgn".to_string(), pc, true, true),
+				"1. d4 (1. e4 e5) (1. f4 Cc6) 1... d5 1-0".to_string()
+			);
+			assert_eq!(
+				game_to_string("sample_games/0006-r.pgn".to_string(), pc, false, true),
+				"1. d4 d5 1-0".to_string()
+			);
+
+			assert_eq!(
+				game_to_string("sample_games/0006-r.pgn".to_string(), pc, true, false),
+				"1. d4 (1. e4 e5) (1. f4 Cc6) 1... d5".to_string()
+			);
+			assert_eq!(
+				game_to_string("sample_games/0006-r.pgn".to_string(), pc, false, false),
+				"1. d4 d5".to_string()
+			);
+		}
+	}
+
+	#[test]
+	fn sample_0007() {
+		for pc in vec![false, true] {
+		for pr in vec![false, true] {
+			assert_eq!(
+				game_to_string("sample_games/0007.pgn".to_string(), pc, true, pr),
+				"1. d4 d5 2. c4 c6".to_string()
+			);
+			assert_eq!(
+				game_to_string("sample_games/0007.pgn".to_string(), pc, false, pr),
+				"1. d4 d5 2. c4 c6".to_string()
+			);
+		}
+		}
+	}
+	#[test]
+	fn sample_0007_r() {
+		for pv in vec![false, true] {
+		for pc in vec![false, true] {
+			assert_eq!(
+				game_to_string("sample_games/0007-r.pgn".to_string(), pc, pv, true),
+				"1. d4 d5 2. c4 c6 1/2-1/2".to_string()
+			);
+			assert_eq!(
+				game_to_string("sample_games/0007-r.pgn".to_string(), pc, pv, false),
+				"1. d4 d5 2. c4 c6".to_string()
+			);
+		}
+		}
+	}
+
 }

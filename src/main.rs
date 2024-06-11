@@ -33,6 +33,7 @@
 use std::env;
 use std::io::BufRead;
 
+mod tests;
 mod comment;
 mod game;
 mod game_formatter;

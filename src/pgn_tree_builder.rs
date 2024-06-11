@@ -35,7 +35,6 @@ use crate::game;
 use crate::comment;
 
 pub struct PGNTreeBuilder {
-	m_keep_result: bool,
 	m_tokens: tokenizer::AllTokens,
 	m_token_types: tokenizer::AllTokenTypes,
 	m_num_tokens: usize,
@@ -51,16 +50,11 @@ struct ParseResult {
 impl PGNTreeBuilder {
 	pub fn new() -> PGNTreeBuilder {
 		PGNTreeBuilder {
-			m_keep_result: true,
 			m_tokens: tokenizer::AllTokens::new(),
 			m_token_types: tokenizer::AllTokenTypes::new(),
 			m_num_tokens: 0,
 			m_tab: String::new()
 		}
-	}
-	
-	pub fn set_keep_result(&mut self, use_res: bool) {
-		self.m_keep_result = use_res;
 	}
 	
 	pub fn set_token_list(
@@ -201,13 +195,8 @@ impl PGNTreeBuilder {
 		let mut g = game::Game::new();
 		if let tokenizer::TokenType::Result { result: _ } = &self.m_token_types[i] {
 			let res = self.remove_token(i);
-			if self.m_keep_result {
-				g.set_result(res);
-				return ParseResult { game: Some(g), next: i };
-			}
-			else {
-				return ParseResult { game: None, next: i };
-			}
+			g.set_result(res);
+			return ParseResult { game: Some(g), next: i };
 		}
 		
 		println!("{}|-> This is an actual move", self.m_tab);

@@ -40,7 +40,7 @@ mod game_formatter;
 mod tokenizer;
 mod pgn_tree_builder;
 
-fn analyze_file(p: String, keep_result: bool) {
+fn analyze_file(p: String) {
 	let mut entire_file_str = String::new();
 	
 	let file = std::fs::File::open(p).expect("Failed to open file");
@@ -54,8 +54,6 @@ fn analyze_file(p: String, keep_result: bool) {
 	let mut builder = pgn_tree_builder::PGNTreeBuilder::new();
 	builder.set_token_list(all_tokens, all_token_types);
 
-	builder.set_keep_result(keep_result);
-	
 	if let Some(game) = builder.build_game_tree() {
 		println!("{:#?}", game);
 		
@@ -73,6 +71,5 @@ fn analyze_file(p: String, keep_result: bool) {
 fn main() {
 	let args: Vec<String> = env::args().collect();
 	
-	let keep = if args[2] == "true".to_string() { true } else { false };
-	analyze_file(args[1].clone(), keep);
+	analyze_file(args[1].clone());
 }

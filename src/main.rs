@@ -33,10 +33,10 @@
 use std::env;
 use std::io::BufRead;
 
-mod tests;
 mod comment;
 mod game;
 mod game_formatter;
+mod game_formatter_tests;
 mod tokenizer;
 mod pgn_tree_builder;
 

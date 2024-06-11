@@ -180,4 +180,80 @@ mod tests {
 		}
 	}
 
+	#[test]
+	fn sample_0003() {
+		for pc in vec![false, true] {
+		for pr in vec![false, true] {
+			assert_eq!(
+				game_to_string("sample_games/0003.pgn".to_string(), pc, true, pr),
+				"1. d4 (1. e4 e5) 1... d5".to_string()
+			);
+			assert_eq!(
+				game_to_string("sample_games/0003.pgn".to_string(), pc, false, pr),
+				"1. d4 d5".to_string()
+			);
+		}
+		}
+	}
+	#[test]
+	fn sample_0003_r() {
+		for pc in vec![false, true] {
+			assert_eq!(
+				game_to_string("sample_games/0003-r.pgn".to_string(), pc, true, true),
+				"1. d4 (1. e4 e5) 1... d5 1/2-1/2".to_string()
+			);
+			assert_eq!(
+				game_to_string("sample_games/0003-r.pgn".to_string(), pc, false, true),
+				"1. d4 d5 1/2-1/2".to_string()
+			);
+
+			assert_eq!(
+				game_to_string("sample_games/0003-r.pgn".to_string(), pc, true, false),
+				"1. d4 (1. e4 e5) 1... d5".to_string()
+			);
+			assert_eq!(
+				game_to_string("sample_games/0003-r.pgn".to_string(), pc, false, false),
+				"1. d4 d5".to_string()
+			);
+		}
+	}
+
+	#[test]
+	fn sample_0004() {
+		for pc in vec![false, true] {
+		for pr in vec![false, true] {
+			assert_eq!(
+				game_to_string("sample_games/0004.pgn".to_string(), pc, true, pr),
+				"1. d4 (1. e4) (1. f4) 1... d5".to_string()
+			);
+			assert_eq!(
+				game_to_string("sample_games/0004.pgn".to_string(), pc, false, pr),
+				"1. d4 d5".to_string()
+			);
+		}
+		}
+	}
+	#[test]
+	fn sample_0004_r() {
+		for pc in vec![false, true] {
+			assert_eq!(
+				game_to_string("sample_games/0004-r.pgn".to_string(), pc, true, true),
+				"1. d4 (1. e4) (1. f4) 1... d5 1/2-1/2".to_string()
+			);
+			assert_eq!(
+				game_to_string("sample_games/0004-r.pgn".to_string(), pc, false, true),
+				"1. d4 d5 1/2-1/2".to_string()
+			);
+
+			assert_eq!(
+				game_to_string("sample_games/0004-r.pgn".to_string(), pc, true, false),
+				"1. d4 (1. e4) (1. f4) 1... d5".to_string()
+			);
+			assert_eq!(
+				game_to_string("sample_games/0004-r.pgn".to_string(), pc, false, false),
+				"1. d4 d5".to_string()
+			);
+		}
+	}
+
 }

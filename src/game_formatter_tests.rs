@@ -74,14 +74,11 @@ mod tests {
 	)
 	-> String
 	{
-		let g = make_game(file);
-		println!("{:#?}", g);
-
 		game_formatter::GameFormatter::new()
 			.set_print_comments(print_comments)
 			.set_print_variation(print_variations)
 			.set_print_result(print_result)
-			.to_string( &g )
+			.to_string( &make_game(file) )
 	}
 
 	#[test]

@@ -360,4 +360,176 @@ mod tests {
 		}
 	}
 
+	#[test]
+	fn sample_0008() {
+		for pc in vec![false, true] {
+		for pr in vec![false, true] {
+			assert_eq!(
+				game_to_string("sample_games/0008.pgn".to_string(), pc, true, pr),
+				"1. d4 d5 2. c4 c6 (2... e5)".to_string()
+			);
+			assert_eq!(
+				game_to_string("sample_games/0008.pgn".to_string(), pc, false, pr),
+				"1. d4 d5 2. c4 c6".to_string()
+			);
+		}
+		}
+	}
+	#[test]
+	fn sample_0008_r() {
+		for pc in vec![false, true] {
+			assert_eq!(
+				game_to_string("sample_games/0008-r.pgn".to_string(), pc, true, true),
+				"1. d4 d5 2. c4 c6 (2... e5) 0-1".to_string()
+			);
+			assert_eq!(
+				game_to_string("sample_games/0008-r.pgn".to_string(), pc, true, false),
+				"1. d4 d5 2. c4 c6 (2... e5)".to_string()
+			);
+			assert_eq!(
+				game_to_string("sample_games/0008-r.pgn".to_string(), pc, false, true),
+				"1. d4 d5 2. c4 c6 0-1".to_string()
+			);
+			assert_eq!(
+				game_to_string("sample_games/0008-r.pgn".to_string(), pc, false, false),
+				"1. d4 d5 2. c4 c6".to_string()
+			);
+		}
+	}
+
+	/* ---------------------------------------------------------------------- */
+
+	#[test]
+	fn sample_0009() {
+		for pv in vec![false, true] {
+		for pr in vec![false, true] {
+			assert_eq!(
+				game_to_string("sample_games/0009.pgn".to_string(), true, pv, pr),
+				"1. d4 { This is a bad move }".to_string()
+			);
+			assert_eq!(
+				game_to_string("sample_games/0009.pgn".to_string(), false, pv, pr),
+				"1. d4".to_string()
+			);
+		}
+		}
+	}
+	#[test]
+	fn sample_0009_r() {
+		for pv in vec![false, true] {
+			assert_eq!(
+				game_to_string("sample_games/0009-r.pgn".to_string(), true, pv, true),
+				"1. d4 { This is a bad move } 1-0".to_string()
+			);
+			assert_eq!(
+				game_to_string("sample_games/0009-r.pgn".to_string(), true, pv, false),
+				"1. d4 { This is a bad move }".to_string()
+			);
+			assert_eq!(
+				game_to_string("sample_games/0009-r.pgn".to_string(), false, pv, true),
+				"1. d4 1-0".to_string()
+			);
+			assert_eq!(
+				game_to_string("sample_games/0009-r.pgn".to_string(), false, pv, false),
+				"1. d4".to_string()
+			);
+		}
+	}
+
+	#[test]
+	fn sample_0010() {
+		for pv in vec![false, true] {
+		for pr in vec![false, true] {
+			assert_eq!(
+				game_to_string("sample_games/0010.pgn".to_string(), true, pv, pr),
+				"1. d4 { This is a bad move } 1... d5 { [%clk 19] This is also a bad move }".to_string()
+			);
+			assert_eq!(
+				game_to_string("sample_games/0010.pgn".to_string(), false, pv, pr),
+				"1. d4 d5".to_string()
+			);
+		}
+		}
+	}
+	#[test]
+	fn sample_0010_r() {
+		for pv in vec![false, true] {
+			assert_eq!(
+				game_to_string("sample_games/0010-r.pgn".to_string(), true, pv, true),
+				"1. d4 { This is a bad move } 1... d5 { [%clk 19] This is also a bad move } 0-1".to_string()
+			);
+			assert_eq!(
+				game_to_string("sample_games/0010-r.pgn".to_string(), true, pv, false),
+				"1. d4 { This is a bad move } 1... d5 { [%clk 19] This is also a bad move }".to_string()
+			);
+			assert_eq!(
+				game_to_string("sample_games/0010-r.pgn".to_string(), false, pv, true),
+				"1. d4 d5 0-1".to_string()
+			);
+			assert_eq!(
+				game_to_string("sample_games/0010-r.pgn".to_string(), false, pv, false),
+				"1. d4 d5".to_string()
+			);
+		}
+	}
+
+	#[test]
+	fn sample_0011() {
+		for pr in vec![false, true] {
+			assert_eq!(
+				game_to_string("sample_games/0011.pgn".to_string(), true, true, pr),
+				"1. d4 { [%clk 99] } (1. e4 { [%clk 99] [%eval -50] }) 1... d5".to_string()
+			);
+			assert_eq!(
+				game_to_string("sample_games/0011.pgn".to_string(), true, false, pr),
+				"1. d4 { [%clk 99] } 1... d5".to_string()
+			);
+
+			assert_eq!(
+				game_to_string("sample_games/0011.pgn".to_string(), false, true, pr),
+				"1. d4 (1. e4) 1... d5".to_string()
+			);
+			assert_eq!(
+				game_to_string("sample_games/0011.pgn".to_string(), false, false, pr),
+				"1. d4 d5".to_string()
+			);
+		}
+	}
+	#[test]
+	fn sample_0011_r() {
+		assert_eq!(
+			game_to_string("sample_games/0011-r.pgn".to_string(), true, true, true),
+			"1. d4 { [%clk 99] } (1. e4 { [%clk 99] [%eval -50] }) 1... d5 0-1".to_string()
+		);
+		assert_eq!(
+			game_to_string("sample_games/0011-r.pgn".to_string(), true, true, false),
+			"1. d4 { [%clk 99] } (1. e4 { [%clk 99] [%eval -50] }) 1... d5".to_string()
+		);
+		assert_eq!(
+			game_to_string("sample_games/0011-r.pgn".to_string(), true, false, true),
+			"1. d4 { [%clk 99] } 1... d5 0-1".to_string()
+		);
+		assert_eq!(
+			game_to_string("sample_games/0011-r.pgn".to_string(), true, false, false),
+			"1. d4 { [%clk 99] } 1... d5".to_string()
+		);
+
+		assert_eq!(
+			game_to_string("sample_games/0011-r.pgn".to_string(), false, true, true),
+			"1. d4 (1. e4) 1... d5 0-1".to_string()
+		);
+		assert_eq!(
+			game_to_string("sample_games/0011-r.pgn".to_string(), false, true, false),
+			"1. d4 (1. e4) 1... d5".to_string()
+		);
+		assert_eq!(
+			game_to_string("sample_games/0011-r.pgn".to_string(), false, false, true),
+			"1. d4 d5 0-1".to_string()
+		);
+		assert_eq!(
+			game_to_string("sample_games/0011-r.pgn".to_string(), false, false, false),
+			"1. d4 d5".to_string()
+		);
+	}
+
 }

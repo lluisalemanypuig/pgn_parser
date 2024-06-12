@@ -532,4 +532,122 @@ mod tests {
 		);
 	}
 
+	#[test]
+	fn sample_0012() {
+		for pr in vec![false, true] {
+			assert_eq!(
+				game_to_string("sample_games/0012.pgn".to_string(), true, true, pr),
+				"1. d4 { Hola } (1. e4 { Adéu } 1... e5 { 新しい }) 1... d5 { 大きい }".to_string()
+			);
+			assert_eq!(
+				game_to_string("sample_games/0012.pgn".to_string(), true, false, pr),
+				"1. d4 { Hola } 1... d5 { 大きい }".to_string()
+			);
+
+			assert_eq!(
+				game_to_string("sample_games/0012.pgn".to_string(), false, true, pr),
+				"1. d4 (1. e4 e5) 1... d5".to_string()
+			);
+			assert_eq!(
+				game_to_string("sample_games/0012.pgn".to_string(), false, false, pr),
+				"1. d4 d5".to_string()
+			);
+		}
+	}
+	#[test]
+	fn sample_0012_r() {
+		assert_eq!(
+			game_to_string("sample_games/0012-r.pgn".to_string(), true, true, true),
+			"1. d4 { Hola } (1. e4 { Adéu } 1... e5 { 新しい }) 1... d5 { 大きい } 1/2-1/2".to_string()
+		);
+		assert_eq!(
+			game_to_string("sample_games/0012-r.pgn".to_string(), true, true, false),
+			"1. d4 { Hola } (1. e4 { Adéu } 1... e5 { 新しい }) 1... d5 { 大きい }".to_string()
+		);
+		assert_eq!(
+			game_to_string("sample_games/0012-r.pgn".to_string(), true, false, true),
+			"1. d4 { Hola } 1... d5 { 大きい } 1/2-1/2".to_string()
+		);
+		assert_eq!(
+			game_to_string("sample_games/0012-r.pgn".to_string(), true, false, false),
+			"1. d4 { Hola } 1... d5 { 大きい }".to_string()
+		);
+
+		assert_eq!(
+			game_to_string("sample_games/0012-r.pgn".to_string(), false, true, true),
+			"1. d4 (1. e4 e5) 1... d5 1/2-1/2".to_string()
+		);
+		assert_eq!(
+			game_to_string("sample_games/0012-r.pgn".to_string(), false, true, false),
+			"1. d4 (1. e4 e5) 1... d5".to_string()
+		);
+		assert_eq!(
+			game_to_string("sample_games/0012-r.pgn".to_string(), false, false, true),
+			"1. d4 d5 1/2-1/2".to_string()
+		);
+		assert_eq!(
+			game_to_string("sample_games/0012-r.pgn".to_string(), false, false, false),
+			"1. d4 d5".to_string()
+		);
+	}
+
+	#[test]
+	fn sample_0013() {
+		for pr in vec![false, true] {
+			assert_eq!(
+				game_to_string("sample_games/0013.pgn".to_string(), true, true, pr),
+				"1. d4 { [%clk 9] A A } (1. e4 { [%clk 9] B B }) (1. f4 { [%clk 9] C C }) 1... d5".to_string()
+			);
+			assert_eq!(
+				game_to_string("sample_games/0013.pgn".to_string(), true, false, pr),
+				"1. d4 { [%clk 9] A A } 1... d5".to_string()
+			);
+
+			assert_eq!(
+				game_to_string("sample_games/0013.pgn".to_string(), false, true, pr),
+				"1. d4 (1. e4) (1. f4) 1... d5".to_string()
+			);
+			assert_eq!(
+				game_to_string("sample_games/0013.pgn".to_string(), false, false, pr),
+				"1. d4 d5".to_string()
+			);
+		}
+	}
+	#[test]
+	fn sample_0013_r() {
+		assert_eq!(
+			game_to_string("sample_games/0013-r.pgn".to_string(), true, true, true),
+			"1. d4 { [%clk 9] A A } (1. e4 { [%clk 9] B B }) (1. f4 { [%clk 9] C C }) 1... d5 1/2-1/2".to_string()
+		);
+		assert_eq!(
+			game_to_string("sample_games/0013-r.pgn".to_string(), true, true, false),
+			"1. d4 { [%clk 9] A A } (1. e4 { [%clk 9] B B }) (1. f4 { [%clk 9] C C }) 1... d5".to_string()
+		);
+		assert_eq!(
+			game_to_string("sample_games/0013-r.pgn".to_string(), true, false, true),
+			"1. d4 { [%clk 9] A A } 1... d5 1/2-1/2".to_string()
+		);
+		assert_eq!(
+			game_to_string("sample_games/0013-r.pgn".to_string(), true, false, false),
+			"1. d4 { [%clk 9] A A } 1... d5".to_string()
+		);
+
+		assert_eq!(
+			game_to_string("sample_games/0013-r.pgn".to_string(), false, true, true),
+			"1. d4 (1. e4) (1. f4) 1... d5 1/2-1/2".to_string()
+		);
+		assert_eq!(
+			game_to_string("sample_games/0013-r.pgn".to_string(), false, true, false),
+			"1. d4 (1. e4) (1. f4) 1... d5".to_string()
+		);
+		assert_eq!(
+			game_to_string("sample_games/0013-r.pgn".to_string(), false, false, true),
+			"1. d4 d5 1/2-1/2".to_string()
+		);
+		assert_eq!(
+			game_to_string("sample_games/0013-r.pgn".to_string(), false, false, false),
+			"1. d4 d5".to_string()
+		);
+	}
+
 }

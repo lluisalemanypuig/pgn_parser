@@ -33,11 +33,12 @@
 #[cfg(test)]
 mod tests {
 
+	use pgn_parser::game_formatter;
+	use pgn_parser::game;
+	use pgn_parser::pgn_tree_builder;
+	use pgn_parser::tokenizer;
+
 	use std::io::BufRead;
-	use crate::tokenizer;
-	use crate::pgn_tree_builder;
-	use crate::game;
-	use crate::game_formatter;
 
 	fn make_builder(file: String) -> pgn_tree_builder::PGNTreeBuilder {
 		let mut entire_file_str = String::new();

@@ -36,7 +36,6 @@ use std::io::BufRead;
 mod comment;
 mod game;
 mod game_formatter;
-mod game_formatter_tests;
 mod tokenizer;
 mod pgn_tree_builder;
 

@@ -1,7 +1,10 @@
 [package]
 name = "pgn_parser"
+author = ["Lluís Alemany Puig"]
 version = "0.1.0"
 edition = "2021"
+repository = "https://github.com/lluisalemanypuig/pgn_parser"
+homepage = "https://github.com/lluisalemanypuig/pgn_parser"
 
 [dependencies]
 regex = "1.10.4"

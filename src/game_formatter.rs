@@ -92,7 +92,7 @@ impl GameFormatter {
 					s.push_str("] ");
 				}
 				
-				println!("C: '{s}'");
+				//println!("C: '{s}'");
 				s.push_str(c.get_text());
 				if c.get_text() != &"".to_string() {
 					s.push_str(" ");
@@ -111,7 +111,7 @@ impl GameFormatter {
 		}
 
 		if let Some(res) = g.get_next_move() {
-			println!("{:#?}", res);
+			//println!("{:#?}", res);
 			if !res.is_result() || self.m_print_result {
 				s.push_str(" ");
 				if let Some(next_side) = res.get_side() {

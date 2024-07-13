@@ -54,7 +54,6 @@ fn analyze_file(p: String) {
 	builder.set_token_list(all_tokens, all_token_types);
 
 	if let Some(game) = builder.build_game_tree() {
-		println!("{:#?}", game);
 		
 		let res = game_formatter::GameFormatter::new()
 			.set_print_comments(true)

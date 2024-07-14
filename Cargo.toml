@@ -10,5 +10,5 @@ homepage = "https://github.com/lluisalemanypuig/pgn_parser"
 regex = "1.10.4"
 
 [[test]]
-path = "tests/game_formatter_tests.rs"
+path = "tests/pgn_formatter_tests.rs"
 name = "game_formatter"

@@ -39,10 +39,10 @@ pub struct Game {
 	m_is_result: bool,
 	m_move_number: u32,
 	m_side: Option<pgn_tokenizer::Side>,
+	m_comments: Vec<comment::Comment>,
 	
 	m_main_line_next: Option<Box<Game>>,
 	m_variations: Vec<Game>,
-	m_comments: Vec<comment::Comment>,
 }
 
 impl Game {
@@ -52,19 +52,17 @@ impl Game {
 			m_is_result: false,
 			m_move_number: 0,
 			m_side: None,
+			m_comments: Vec::new(),
 			
 			m_main_line_next: None,
 			m_variations: Vec::new(),
-			m_comments: Vec::new(),
 		}
 	}
 	
-	pub fn set_move_text(
-		&mut self,
-		text: String,
-		s: &pgn_tokenizer::Side,
-		num: u32
-	)
+	/* MODIFIERS */
+
+	pub fn set_move_text
+	(&mut self, text: String, s: &pgn_tokenizer::Side, num: u32)
 	{
 		self.m_game_move = text;
 		self.m_side = Some(s.clone());
@@ -101,4 +99,17 @@ impl Game {
 	pub fn get_variations(&self) -> &Vec<Game> { &self.m_variations }
 	pub fn get_comments(&self) -> &Vec<comment::Comment> { &self.m_comments }
 	
+}
+
+impl Drop for Game {
+	fn drop(&mut self) {
+		let mut next_game = self.m_main_line_next.take();
+		while let Some(mut game) = next_game {
+			next_game = game.m_main_line_next.take();
+		}
+
+		// No need to drop m_variations since this is handled automatically
+		// by Rust. The deallocation of each element in m_variations is handled
+		// by this function.
+	}
 }

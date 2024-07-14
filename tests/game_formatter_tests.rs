@@ -33,10 +33,10 @@
 #[cfg(test)]
 mod tests {
 
-	use pgn_parser::game_formatter;
 	use pgn_parser::game;
+	use pgn_parser::pgn_formatter;
 	use pgn_parser::pgn_tree_builder;
-	use pgn_parser::tokenizer;
+	use pgn_parser::pgn_tokenizer;
 
 	use std::io::BufRead;
 
@@ -49,7 +49,7 @@ mod tests {
 			entire_file_str.push_str( line.unwrap().trim() );
 		}
 		
-		let (all_tokens, all_token_types) = tokenizer::tokenize(entire_file_str);
+		let (all_tokens, all_token_types) = pgn_tokenizer::tokenize(entire_file_str);
 		
 		let mut builder = pgn_tree_builder::PGNTreeBuilder::new();
 		builder.set_token_list(all_tokens, all_token_types);
@@ -75,7 +75,7 @@ mod tests {
 	)
 	-> String
 	{
-		game_formatter::GameFormatter::new()
+		pgn_formatter::PgnFormatter::new()
 			.set_print_variation(print_variations)
 			.set_print_result(print_result)
 			.set_print_comments(print_comments)

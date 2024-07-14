@@ -31,33 +31,33 @@
  ********************************************************************/
 
 use crate::game;
-use crate::tokenizer;
+use crate::pgn_tokenizer;
 
-pub struct GameFormatter {
+pub struct PgnFormatter {
     m_print_comments: bool,
     m_print_variants: bool,
     m_print_result: bool
 }
 
-impl GameFormatter {
+impl PgnFormatter {
 
-	pub fn new() -> GameFormatter {
-		GameFormatter {
+	pub fn new() -> PgnFormatter {
+		PgnFormatter {
 			m_print_comments: true,
 			m_print_variants: true,
 			m_print_result: true,
 		}
 	}
 
-	pub fn set_print_comments(&mut self, v: bool) -> &mut GameFormatter {
+	pub fn set_print_comments(&mut self, v: bool) -> &mut PgnFormatter {
 		self.m_print_comments = v;
 		self
 	}
-	pub fn set_print_variation(&mut self, v: bool) -> &mut GameFormatter {
+	pub fn set_print_variation(&mut self, v: bool) -> &mut PgnFormatter {
 		self.m_print_variants = v;
 		self
 	}
-	pub fn set_print_result(&mut self, v: bool) -> &mut GameFormatter {
+	pub fn set_print_result(&mut self, v: bool) -> &mut PgnFormatter {
 		self.m_print_result = v;
 		self
 	}
@@ -66,7 +66,7 @@ impl GameFormatter {
 		if show_move_number {
 			if let Some(side) = g.get_side() {
 				s.push_str(&g.get_move_number().to_string());
-				if side == &tokenizer::Side::White {
+				if side == &pgn_tokenizer::Side::White {
 					s.push_str(". ");
 				}
 				else {
@@ -92,7 +92,6 @@ impl GameFormatter {
 					s.push_str("] ");
 				}
 				
-				//println!("C: '{s}'");
 				s.push_str(c.get_text());
 				if c.get_text() != &"".to_string() {
 					s.push_str(" ");
@@ -111,11 +110,10 @@ impl GameFormatter {
 		}
 
 		if let Some(res) = g.get_next_move() {
-			//println!("{:#?}", res);
 			if !res.is_result() || self.m_print_result {
 				s.push_str(" ");
 				if let Some(next_side) = res.get_side() {
-					show_num_next_move = show_num_next_move || next_side == &tokenizer::Side::White;
+					show_num_next_move = show_num_next_move || next_side == &pgn_tokenizer::Side::White;
 				}
 				self.to_string_rec(&res, show_num_next_move, s);
 			}

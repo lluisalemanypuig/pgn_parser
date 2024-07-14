@@ -31,14 +31,14 @@
  ********************************************************************/
 
 use crate::comment;
-use crate::tokenizer;
+use crate::pgn_tokenizer;
 
 #[derive(Debug)]
 pub struct Game {
 	m_game_move: String,
 	m_is_result: bool,
 	m_move_number: u32,
-	m_side: Option<tokenizer::Side>,
+	m_side: Option<pgn_tokenizer::Side>,
 	
 	m_main_line_next: Option<Box<Game>>,
 	m_variations: Vec<Game>,
@@ -62,7 +62,7 @@ impl Game {
 	pub fn set_move_text(
 		&mut self,
 		text: String,
-		s: &tokenizer::Side,
+		s: &pgn_tokenizer::Side,
 		num: u32
 	)
 	{
@@ -92,7 +92,7 @@ impl Game {
 	
 	/* GETTERS */
 	
-	pub fn get_side(&self) -> &Option<tokenizer::Side> { &self.m_side }
+	pub fn get_side(&self) -> &Option<pgn_tokenizer::Side> { &self.m_side }
 	pub fn get_move_text(&self) -> &String { &self.m_game_move }
 	pub fn get_move_number(&self) -> &u32 { &self.m_move_number }
 	pub fn get_next_move(&self) -> &Option<Box<Game>> { &self.m_main_line_next }

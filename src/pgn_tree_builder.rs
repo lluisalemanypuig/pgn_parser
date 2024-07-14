@@ -30,13 +30,13 @@
  *
  ********************************************************************/
 
-use crate::tokenizer;
+use crate::pgn_tokenizer;
 use crate::game;
 use crate::comment;
 
 pub struct PGNTreeBuilder {
-	m_tokens: tokenizer::AllTokens,
-	m_token_types: tokenizer::AllTokenTypes,
+	m_tokens: pgn_tokenizer::AllTokens,
+	m_token_types: pgn_tokenizer::AllTokenTypes,
 	m_num_tokens: usize,
 	
 	m_tab: String
@@ -50,8 +50,8 @@ struct ParseResult {
 impl PGNTreeBuilder {
 	pub fn new() -> PGNTreeBuilder {
 		PGNTreeBuilder {
-			m_tokens: tokenizer::AllTokens::new(),
-			m_token_types: tokenizer::AllTokenTypes::new(),
+			m_tokens: pgn_tokenizer::AllTokens::new(),
+			m_token_types: pgn_tokenizer::AllTokenTypes::new(),
 			m_num_tokens: 0,
 			m_tab: String::new()
 		}
@@ -59,8 +59,8 @@ impl PGNTreeBuilder {
 	
 	pub fn set_token_list(
 		&mut self,
-		tokens: tokenizer::AllTokens,
-		token_types: tokenizer::AllTokenTypes,
+		tokens: pgn_tokenizer::AllTokens,
+		token_types: pgn_tokenizer::AllTokenTypes,
 	)
 	{
 		assert_eq!(self.m_tokens.len(), self.m_token_types.len());
@@ -76,28 +76,25 @@ impl PGNTreeBuilder {
 	}
 	
 	fn parse_comment_tag(&mut self, mut i: usize) -> (usize, String, String) {
-		//println!("{}Reading a tag '{}'", self.m_tab, self.get_token(i));
-		
 		let tag_name = self.remove_token(i);
 		i += 1;
 		
 		let mut text_tag = String::new();
 		let mut stop = false;
 		while i < self.m_num_tokens && !stop {
-			//println!("{}{:#?}", self.m_tab, self.get_token(i));
 			
 			match &self.m_token_types[i] {
-				tokenizer::TokenType::CommentDelim { open: false } => {
+				pgn_tokenizer::TokenType::CommentDelim { open: false } => {
 					panic!("A comment tag was closed with a comment deliminter");
 				},
 				
-				tokenizer::TokenType::TagDelim { open: false } => {
+				pgn_tokenizer::TokenType::TagDelim { open: false } => {
 					stop = true;
 					self.remove_token(i);
 					i += 1;
 				},
 				
-				tokenizer::TokenType::Text => {
+				pgn_tokenizer::TokenType::Text => {
 					text_tag.push_str( &self.remove_token(i) );
 					i += 1;
 				},
@@ -111,8 +108,6 @@ impl PGNTreeBuilder {
 	fn parse_comment(&mut self, mut i: usize)
 	-> (comment::Comment, usize)
 	{
-		//println!("{}Parsing comment", self.m_tab);
-		
 		let mut com = comment::Comment::new();
 		let mut text_comment = String::new();
 		
@@ -121,17 +116,13 @@ impl PGNTreeBuilder {
 		while i < self.m_num_tokens && !stop {
 			
 			match &self.m_token_types[i] {
-				tokenizer::TokenType::CommentDelim { open: false } => {
-					//println!("{}Exhausted comment", self.m_tab);
-					
+				pgn_tokenizer::TokenType::CommentDelim { open: false } => {
 					stop = true;
 					self.remove_token(i);
 					i += 1;
 				},
 				
-				tokenizer::TokenType::TagDelim { open: true } => {
-					//println!("{}Open a tag", self.m_tab);
-					
+				pgn_tokenizer::TokenType::TagDelim { open: true } => {
 					self.remove_token(i);
 					i += 1;
 					
@@ -140,9 +131,7 @@ impl PGNTreeBuilder {
 					com.add_tag(tag_name, tag_text);
 				},
 				
-				tokenizer::TokenType::Text => {
-					//println!("{}Read text '{}'", self.m_tab, self.get_token(i));
-					
+				pgn_tokenizer::TokenType::Text => {
 					if first_text_comment {
 						first_text_comment = false;
 					}
@@ -162,8 +151,8 @@ impl PGNTreeBuilder {
 	
 	fn is_variant_or_comment(&self, i: usize) -> bool {
 		match &self.m_token_types[i] {
-			tokenizer::TokenType::VariantDelim { open: true } => true,
-			tokenizer::TokenType::CommentDelim { open: true } => true,
+			pgn_tokenizer::TokenType::VariantDelim { open: true } => true,
+			pgn_tokenizer::TokenType::CommentDelim { open: true } => true,
 			_ => false
 		}
 	}
@@ -173,25 +162,22 @@ impl PGNTreeBuilder {
 		mut i: usize,
 		expect_move_id: bool,
 		move_number: u32,
-		side: tokenizer::Side
+		side: pgn_tokenizer::Side
 	)
 	->	ParseResult
 	{
-		//println!("{}A. Token {i}. Depth {move_number} -- {:#?}", self.m_tab, self.m_tokens[self.token_index(i)]);
-		
 		if i == self.m_num_tokens {
 			return ParseResult { game: None, next: self.m_num_tokens };
 		}
 		
 		let mut g = game::Game::new();
-		if let tokenizer::TokenType::Result { result: _ } = &self.m_token_types[i] {
+		if let pgn_tokenizer::TokenType::Result { result: _ } = &self.m_token_types[i] {
 			let res = self.remove_token(i);
 			g.set_result(res);
 			return ParseResult { game: Some(g), next: i };
 		}
 
-		if let tokenizer::TokenType::MoveNumber { id, side: sid } = &self.m_token_types[i] {
-			//println!("{}|-> This is a move number", self.m_tab);
+		if let pgn_tokenizer::TokenType::MoveNumber { id, side: sid } = &self.m_token_types[i] {
 			assert_eq!(move_number, *id);
 			assert_eq!(side, *sid);
 			self.remove_token(i);
@@ -203,9 +189,6 @@ impl PGNTreeBuilder {
 			}
 		}
 		
-		//println!("{}B. Token {i}. Depth {move_number} -- {:#?}", self.m_tab, self.m_tokens[self.token_index(i)]);
-		
-		//println!("{}|-> This is an actual move", self.m_tab);
 		g.set_move_text(self.remove_token(i), &side, move_number);
 		i += 1;
 		
@@ -214,10 +197,9 @@ impl PGNTreeBuilder {
 		while i < self.m_num_tokens && self.is_variant_or_comment(i) {
 			
 			match &self.m_token_types[i] {
-				tokenizer::TokenType::VariantDelim { open: true } => {
+				pgn_tokenizer::TokenType::VariantDelim { open: true } => {
 					found_variant_comment = true;
 
-					//println!("{}|-> A new variant started", self.m_tab);
 					self.remove_token(i);
 					
 					self.m_tab.push_str("    ");
@@ -232,23 +214,15 @@ impl PGNTreeBuilder {
 					if let ParseResult { game: Some(gg), next } = parse {
 						g.add_variation(gg);
 						i = next;
-						
-						/*
-						if i < self.m_num_tokens {
-							println!("{}After parsing the variant...", self.m_tab);
-							println!("{}Next {next}. Token {i}. Depth {move_number} -- {:#?}", self.m_tab, self.m_tokens[self.token_index(i)]);
-						}
-						*/
 					}
 					else {
 						panic!("{}Unexpected wrong return", self.m_tab);
 					}
 				},
 
-				tokenizer::TokenType::CommentDelim { open: true } => {
+				pgn_tokenizer::TokenType::CommentDelim { open: true } => {
 					found_variant_comment = true;
 
-					//println!("{}This is a comment", self.m_tab);
 					self.remove_token(i);
 					i += 1;
 					
@@ -262,22 +236,18 @@ impl PGNTreeBuilder {
 		}
 		
 		if i < self.m_num_tokens {
-			//println!("{}D. After reading all the variants and comments", self.m_tab);
-			//println!("{}E. Token {i}. Depth {move_number} -- {:#?}", self.m_tab, self.m_tokens[self.token_index(i)]);
 			
-			if let tokenizer::TokenType::VariantDelim { open: false } = &self.m_token_types[i] {
-				//println!("{}F. A variant has been closed. Next {}", self.m_tab, i);
+			if let pgn_tokenizer::TokenType::VariantDelim { open: false } = &self.m_token_types[i] {
 				self.remove_token(i);
 				return ParseResult { game: Some(g), next: i + 1 };
 			}
 			
-			//println!("{}G. A new move comes", self.m_tab);
 			self.m_tab.push_str("    ");
-			let next_side = tokenizer::other_side(&side);
+			let next_side = pgn_tokenizer::other_side(&side);
 			let parse = self.build_game_tree_rec(
 				i,
 				found_variant_comment,
-				move_number + if next_side == tokenizer::Side::White { 1 } else { 0 },
+				move_number + if next_side == pgn_tokenizer::Side::White { 1 } else { 0 },
 				next_side
 			);
 			self.m_tab.replace_range(0..4, "");
@@ -296,7 +266,7 @@ impl PGNTreeBuilder {
 			0,
 			true,
 			1,
-			tokenizer::Side::White
+			pgn_tokenizer::Side::White
 		);
 		
 		assert_eq!(self.m_tokens.len(), 0);

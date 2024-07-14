@@ -11,4 +11,8 @@ regex = "1.10.4"
 
 [[test]]
 path = "tests/pgn_formatter_tests.rs"
-name = "game_formatter"
+name = "pgn_formatter"
+
+[[test]]
+path = "tests/pgn_tree_builder_tests.rs"
+name = "pgn_tree_builder"

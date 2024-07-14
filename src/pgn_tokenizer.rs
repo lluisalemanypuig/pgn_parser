@@ -59,7 +59,7 @@ fn classify_char(c: char) -> CharacterType {
 	}
 }
 
-#[derive(Debug,PartialEq,Clone)]
+#[derive(Debug,Eq,PartialEq,Clone)]
 pub enum Side { White, Black }
 
 pub fn other_side(s: &Side) -> Side {

@@ -30,7 +30,7 @@
  *
  ********************************************************************/
 
-#[derive(Debug)]
+#[derive(Debug,Eq,PartialEq)]
 pub struct Comment {
 	m_text: String,
 	m_tags: Vec<(String, String)>

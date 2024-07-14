@@ -33,7 +33,7 @@
 use crate::comment;
 use crate::pgn_tokenizer;
 
-#[derive(Debug)]
+#[derive(Debug,Eq,PartialEq)]
 pub struct Game {
 	m_game_move: String,
 	m_is_result: bool,
@@ -56,6 +56,28 @@ impl Game {
 			
 			m_main_line_next: None,
 			m_variations: Vec::new(),
+		}
+	}
+	pub fn new_data(
+		game_move: String,
+		is_result: bool,
+		move_number: u32,
+		side: Option<pgn_tokenizer::Side>,
+		comments: Vec<comment::Comment>,
+		main_line_next: Option<Box<Game>>,
+		variations: Vec<Game>
+	)
+	-> Game
+	{
+		Game {
+			m_game_move: game_move,
+			m_is_result: is_result,
+			m_move_number: move_number,
+			m_side: side,
+			m_comments: comments,
+			
+			m_main_line_next: main_line_next,
+			m_variations: variations,
 		}
 	}
 	
@@ -94,6 +116,7 @@ impl Game {
 	pub fn get_move_text(&self) -> &String { &self.m_game_move }
 	pub fn get_move_number(&self) -> &u32 { &self.m_move_number }
 	pub fn get_next_move(&self) -> &Option<Box<Game>> { &self.m_main_line_next }
+	pub fn get_next_move_mut(&mut self) -> &mut Option<Box<Game>> { &mut self.m_main_line_next }
 	//pub fn is_move_empty(&self) -> bool { !self.is_result() && self.m_game_move == "".to_string() }
 	pub fn is_result(&self) -> bool { self.m_is_result }
 	pub fn get_variations(&self) -> &Vec<Game> { &self.m_variations }

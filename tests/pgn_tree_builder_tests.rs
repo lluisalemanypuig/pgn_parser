@@ -33,6 +33,7 @@
  #[cfg(test)]
  mod tests {
 
+	use pgn_parser::comment;
 	use pgn_parser::game;
 	use pgn_parser::pgn_tree_builder;
 	use pgn_parser::pgn_tokenizer;
@@ -75,6 +76,18 @@
 			vec![],
 			None,
 			vec![],
+		)
+	}
+
+	fn make_comment(text: &str, tags: Vec<(&str,&str)>) -> comment::Comment {
+		comment::Comment::new_data(
+			text.to_string(),
+			tags
+			.iter()
+			.map(
+				|(a,b)| (a.to_string(), b.to_string())
+			)
+			.collect()
 		)
 	}
 
@@ -536,6 +549,642 @@
 		assert_eq!(make_game("sample_games/0007-r.pgn".to_string()), g);
 	}
 
+	// -------------------------------------------------
+
+	fn make_game_0008() -> game::Game {
+		game::Game::new_data(
+			String::from("d4"),
+			false,
+			1,
+			Some(pgn_tokenizer::Side::White),
+			vec![],
+			Some(Box::new(
+				game::Game::new_data(
+					String::from("d5"),
+					false,
+					1,
+					Some(pgn_tokenizer::Side::Black),
+					vec![],
+					Some(Box::new(
+						game::Game::new_data(
+							String::from("c4"),
+							false,
+							2,
+							Some(pgn_tokenizer::Side::White),
+							vec![],
+							Some(Box::new(
+								game::Game::new_data(
+									String::from("c6"),
+									false,
+									2,
+									Some(pgn_tokenizer::Side::Black),
+									vec![],
+									None,
+									vec![
+										game::Game::new_data(
+											String::from("e5"),
+											false,
+											2,
+											Some(pgn_tokenizer::Side::Black),
+											vec![],
+											None,
+											vec![],
+										)
+									],
+								)
+							)),
+							vec![],
+						)
+					)),
+					vec![],
+				)
+			)),
+			vec![]
+		)
+	}
+
+	#[test]
+	fn sample_0008() {
+		assert_eq!(
+			make_game("sample_games/0008.pgn".to_string()),
+			make_game_0008()
+		);
+	}
+
+	#[test]
+	fn sample_0008_r() {
+		let mut g = make_game_0008();
+		g
+			.get_next_move_mut().as_mut().unwrap()
+			.get_next_move_mut().as_mut().unwrap()
+			.get_next_move_mut().as_mut().unwrap()
+			.set_next_move(result_move("0-1"));
+
+		assert_eq!(make_game("sample_games/0008-r.pgn".to_string()), g);
+	}
+
+	// -------------------------------------------------
+
+	fn make_game_0009() -> game::Game {
+		game::Game::new_data(
+			String::from("d4"),
+			false,
+			1,
+			Some(pgn_tokenizer::Side::White),
+			vec![
+				make_comment(
+					"This is a bad move",
+					vec![]
+				)
+			],
+			None,
+			vec![]
+		)
+	}
+
+	#[test]
+	fn sample_0009() {
+		assert_eq!(
+			make_game("sample_games/0009.pgn".to_string()),
+			make_game_0009()
+		);
+	}
+
+	#[test]
+	fn sample_0009_r() {
+		let mut g = make_game_0009();
+		g
+			.set_next_move(result_move("1-0"));
+
+		assert_eq!(make_game("sample_games/0009-r.pgn".to_string()), g);
+	}
+
+	// -------------------------------------------------
+
+	fn make_game_0010() -> game::Game {
+		game::Game::new_data(
+			String::from("d4"),
+			false,
+			1,
+			Some(pgn_tokenizer::Side::White),
+			vec![
+				make_comment(
+					"This is a bad move",
+					vec![]
+				)
+			],
+			Some(Box::new(
+				game::Game::new_data(
+					String::from("d5"),
+					false,
+					1,
+					Some(pgn_tokenizer::Side::Black),
+					vec![
+						make_comment(
+							"This is also a bad move",
+							vec![("%clk", "19")]
+						)
+					],
+					None,
+					vec![],
+				)
+			)),
+			vec![]
+		)
+	}
+
+	#[test]
+	fn sample_0010() {
+		assert_eq!(
+			make_game("sample_games/0010.pgn".to_string()),
+			make_game_0010()
+		);
+	}
+
+	#[test]
+	fn sample_0010_r() {
+		let mut g = make_game_0010();
+		g
+			.get_next_move_mut().as_mut().unwrap()
+			.set_next_move(result_move("0-1"));
+
+		assert_eq!(make_game("sample_games/0010-r.pgn".to_string()), g);
+	}
+
+	// -------------------------------------------------
+
+	fn make_game_0011() -> game::Game {
+		game::Game::new_data(
+			String::from("d4"),
+			false,
+			1,
+			Some(pgn_tokenizer::Side::White),
+			vec![
+				make_comment(
+					"",
+					vec![("%clk", "99")]
+				)
+			],
+			Some(Box::new(
+				game::Game::new_data(
+					String::from("d5"),
+					false,
+					1,
+					Some(pgn_tokenizer::Side::Black),
+					vec![],
+					None,
+					vec![],
+				)
+			)),
+			vec![
+				game::Game::new_data(
+					String::from("e4"),
+					false,
+					1,
+					Some(pgn_tokenizer::Side::White),
+					vec![
+						make_comment(
+							"",
+							vec![("%clk", "99"), ("%eval", "-50")]
+						)
+					],
+					None,
+					vec![],
+				)
+			]
+		)
+	}
+
+	#[test]
+	fn sample_0011() {
+		assert_eq!(
+			make_game("sample_games/0011.pgn".to_string()),
+			make_game_0011()
+		);
+	}
+
+	#[test]
+	fn sample_0011_r() {
+		let mut g = make_game_0011();
+		g
+			.get_next_move_mut().as_mut().unwrap()
+			.set_next_move(result_move("0-1"));
+
+		assert_eq!(make_game("sample_games/0011-r.pgn".to_string()), g);
+	}
+
+	// -------------------------------------------------
+
+	fn make_game_0012() -> game::Game {
+		game::Game::new_data(
+			String::from("d4"),
+			false,
+			1,
+			Some(pgn_tokenizer::Side::White),
+			vec![make_comment("Hola", vec![])],
+			Some(Box::new(
+				game::Game::new_data(
+					String::from("d5"),
+					false,
+					1,
+					Some(pgn_tokenizer::Side::Black),
+					vec![make_comment("大きい", vec![])],
+					None,
+					vec![],
+				)
+			)),
+			vec![
+				game::Game::new_data(
+					String::from("e4"),
+					false,
+					1,
+					Some(pgn_tokenizer::Side::White),
+					vec![make_comment("Adéu", vec![])],
+					Some(Box::new(
+						game::Game::new_data(
+							String::from("e5"),
+							false,
+							1,
+							Some(pgn_tokenizer::Side::Black),
+							vec![make_comment("新しい", vec![])],
+							None,
+							vec![],
+						)
+					)),
+					vec![],
+				)
+			]
+		)
+	}
+
+	#[test]
+	fn sample_0012() {
+		assert_eq!(
+			make_game("sample_games/0012.pgn".to_string()),
+			make_game_0012()
+		);
+	}
+
+	#[test]
+	fn sample_0012_r() {
+		let mut g = make_game_0012();
+		g
+			.get_next_move_mut().as_mut().unwrap()
+			.set_next_move(result_move("1/2-1/2"));
+
+		assert_eq!(make_game("sample_games/0012-r.pgn".to_string()), g);
+	}
+
+	// -------------------------------------------------
+
+	fn make_game_0013() -> game::Game {
+		game::Game::new_data(
+			String::from("d4"),
+			false,
+			1,
+			Some(pgn_tokenizer::Side::White),
+			vec![make_comment("A A", vec![("%clk", "9")])],
+			Some(Box::new(
+				game::Game::new_data(
+					String::from("d5"),
+					false,
+					1,
+					Some(pgn_tokenizer::Side::Black),
+					vec![],
+					None,
+					vec![],
+				)
+			)),
+			vec![
+				game::Game::new_data(
+					String::from("e4"),
+					false,
+					1,
+					Some(pgn_tokenizer::Side::White),
+					vec![make_comment("B B", vec![("%clk", "9")])],
+					None,
+					vec![],
+				),
+				game::Game::new_data(
+					String::from("f4"),
+					false,
+					1,
+					Some(pgn_tokenizer::Side::White),
+					vec![make_comment("C C", vec![("%clk", "9")])],
+					None,
+					vec![],
+				)
+			]
+		)
+	}
+
+	#[test]
+	fn sample_0013() {
+		assert_eq!(
+			make_game("sample_games/0013.pgn".to_string()),
+			make_game_0013()
+		);
+	}
+
+	#[test]
+	fn sample_0013_r() {
+		let mut g = make_game_0013();
+		g
+			.get_next_move_mut().as_mut().unwrap()
+			.set_next_move(result_move("1/2-1/2"));
+
+		assert_eq!(make_game("sample_games/0013-r.pgn".to_string()), g);
+	}
+
+	// -------------------------------------------------
+
+	fn make_game_0014() -> game::Game {
+		game::Game::new_data(
+			String::from("d4"),
+			false,
+			1,
+			Some(pgn_tokenizer::Side::White),
+			vec![make_comment("A A", vec![("%clk", "9"), ("%eval", "-9")])],
+			Some(Box::new(
+				game::Game::new_data(
+					String::from("d5"),
+					false,
+					1,
+					Some(pgn_tokenizer::Side::Black),
+					vec![make_comment("E E", vec![("%clk", "9"), ("%eval", "-9")])],
+					None,
+					vec![],
+				)
+			)),
+			vec![
+				game::Game::new_data(
+					String::from("e4"),
+					false,
+					1,
+					Some(pgn_tokenizer::Side::White),
+					vec![make_comment("B B", vec![("%clk", "9"), ("%eval", "-9")])],
+					Some(Box::new(
+						game::Game::new_data(
+							String::from("e5"),
+							false,
+							1,
+							Some(pgn_tokenizer::Side::Black),
+							vec![make_comment("C C", vec![("%clk", "9"), ("%eval", "-9")])],
+							None,
+							vec![],
+						),
+					)),
+					vec![],
+				),
+				game::Game::new_data(
+					String::from("f4"),
+					false,
+					1,
+					Some(pgn_tokenizer::Side::White),
+					vec![make_comment("D D", vec![("%clk", "9"), ("%eval", "-9")])],
+					None,
+					vec![],
+				)
+			]
+		)
+	}
+
+	#[test]
+	fn sample_0014() {
+		assert_eq!(
+			make_game("sample_games/0014.pgn".to_string()),
+			make_game_0014()
+		);
+	}
+
+	#[test]
+	fn sample_0014_r() {
+		let mut g = make_game_0014();
+		g
+			.get_next_move_mut().as_mut().unwrap()
+			.set_next_move(result_move("0-1"));
+
+		assert_eq!(make_game("sample_games/0014-r.pgn".to_string()), g);
+	}
+
+	// -------------------------------------------------
+
+	fn make_game_0015() -> game::Game {
+		game::Game::new_data(
+			String::from("d4"),
+			false,
+			1,
+			Some(pgn_tokenizer::Side::White),
+			vec![make_comment("A A", vec![("%clk", "9"), ("%eval", "-9")])],
+			Some(Box::new(
+				game::Game::new_data(
+					String::from("d5"),
+					false,
+					1,
+					Some(pgn_tokenizer::Side::Black),
+					vec![make_comment("E E", vec![("%clk", "9"), ("%eval", "-9")])],
+					None,
+					vec![],
+				)
+			)),
+			vec![
+				game::Game::new_data(
+					String::from("e4"),
+					false,
+					1,
+					Some(pgn_tokenizer::Side::White),
+					vec![make_comment("B B", vec![("%clk", "9"), ("%eval", "-9")])],
+					Some(Box::new(
+						game::Game::new_data(
+							String::from("e5"),
+							false,
+							1,
+							Some(pgn_tokenizer::Side::Black),
+							vec![make_comment("C C", vec![("%clk", "9"), ("%eval", "-9")])],
+							None,
+							vec![],
+						),
+					)),
+					vec![],
+				),
+				game::Game::new_data(
+					String::from("f4"),
+					false,
+					1,
+					Some(pgn_tokenizer::Side::White),
+					vec![make_comment("D D", vec![("%clk", "9"), ("%eval", "-9")])],
+					Some(Box::new(
+						game::Game::new_data(
+							String::from("Cc6"),
+							false,
+							1,
+							Some(pgn_tokenizer::Side::Black),
+							vec![],
+							None,
+							vec![],
+						),
+					)),
+					vec![],
+				)
+			]
+		)
+	}
+
+	#[test]
+	fn sample_0015() {
+		assert_eq!(
+			make_game("sample_games/0015.pgn".to_string()),
+			make_game_0015()
+		);
+	}
+
+	#[test]
+	fn sample_0015_r() {
+		let mut g = make_game_0015();
+		g
+			.get_next_move_mut().as_mut().unwrap()
+			.set_next_move(result_move("1-0"));
+
+		assert_eq!(make_game("sample_games/0015-r.pgn".to_string()), g);
+	}
+	
+	// -------------------------------------------------
+
+	fn make_game_0016() -> game::Game {
+		game::Game::new_data(
+			String::from("d4"),
+			false,
+			1,
+			Some(pgn_tokenizer::Side::White),
+			vec![],
+			Some(Box::new(
+				game::Game::new_data(
+					String::from("d5"),
+					false,
+					1,
+					Some(pgn_tokenizer::Side::Black),
+					vec![make_comment("B B", vec![])],
+					Some(Box::new(
+						game::Game::new_data(
+							String::from("c4"),
+							false,
+							2,
+							Some(pgn_tokenizer::Side::White),
+							vec![],
+							Some(Box::new(
+								game::Game::new_data(
+									String::from("c6"),
+									false,
+									2,
+									Some(pgn_tokenizer::Side::Black),
+									vec![make_comment("C C", vec![])],
+									None,
+									vec![],
+								)
+							)),
+							vec![],
+						)
+					)),
+					vec![],
+				)
+			)),
+			vec![]
+		)
+	}
+
+	#[test]
+	fn sample_0016() {
+		assert_eq!(
+			make_game("sample_games/0016.pgn".to_string()),
+			make_game_0016()
+		);
+	}
+
+	#[test]
+	fn sample_0016_r() {
+		let mut g = make_game_0016();
+		g
+			.get_next_move_mut().as_mut().unwrap()
+			.get_next_move_mut().as_mut().unwrap()
+			.get_next_move_mut().as_mut().unwrap()
+			.set_next_move(result_move("1-0"));
+
+		assert_eq!(make_game("sample_games/0016-r.pgn".to_string()), g);
+	}
+
+	// -------------------------------------------------
+
+	fn make_game_0017() -> game::Game {
+		game::Game::new_data(
+			String::from("d4"),
+			false,
+			1,
+			Some(pgn_tokenizer::Side::White),
+			vec![],
+			Some(Box::new(
+				game::Game::new_data(
+					String::from("d5"),
+					false,
+					1,
+					Some(pgn_tokenizer::Side::Black),
+					vec![],
+					Some(Box::new(
+						game::Game::new_data(
+							String::from("c4"),
+							false,
+							2,
+							Some(pgn_tokenizer::Side::White),
+							vec![],
+							Some(Box::new(
+								game::Game::new_data(
+									String::from("c6"),
+									false,
+									2,
+									Some(pgn_tokenizer::Side::Black),
+									vec![],
+									None,
+									vec![
+										game::Game::new_data(
+											String::from("e5"),
+											false,
+											2,
+											Some(pgn_tokenizer::Side::Black),
+											vec![make_comment("P P", vec![])],
+											None,
+											vec![],
+										)
+									],
+								)
+							)),
+							vec![],
+						)
+					)),
+					vec![],
+				)
+			)),
+			vec![]
+		)
+	}
+
+	#[test]
+	fn sample_0017() {
+		assert_eq!(
+			make_game("sample_games/0017.pgn".to_string()),
+			make_game_0017()
+		);
+	}
+
+	#[test]
+	fn sample_0017_r() {
+		let mut g = make_game_0017();
+		g
+			.get_next_move_mut().as_mut().unwrap()
+			.get_next_move_mut().as_mut().unwrap()
+			.get_next_move_mut().as_mut().unwrap()
+			.set_next_move(result_move("0-1"));
+
+		assert_eq!(make_game("sample_games/0017-r.pgn".to_string()), g);
+	}
 
 }
  

@@ -41,7 +41,7 @@ pub struct Game {
 	m_side: Option<pgn_tokenizer::Side>,
 	m_comments: Vec<comment::Comment>,
 	
-	m_main_line_next: Option<Box<Game>>,
+	m_next: Option<Box<Game>>,
 	m_variations: Vec<Game>,
 }
 
@@ -54,7 +54,7 @@ impl Game {
 			m_side: None,
 			m_comments: Vec::new(),
 			
-			m_main_line_next: None,
+			m_next: None,
 			m_variations: Vec::new(),
 		}
 	}
@@ -76,7 +76,7 @@ impl Game {
 			m_side: side,
 			m_comments: comments,
 			
-			m_main_line_next: main_line_next,
+			m_next: main_line_next,
 			m_variations: variations,
 		}
 	}
@@ -99,7 +99,7 @@ impl Game {
 	}
 
 	pub fn set_next_move(&mut self, game: Game) {
-		self.m_main_line_next = Some(Box::new(game));
+		self.m_next = Some(Box::new(game));
 	}
 
 	pub fn add_variation(&mut self, variation: Game) {
@@ -115,8 +115,8 @@ impl Game {
 	pub fn get_side(&self) -> &Option<pgn_tokenizer::Side> { &self.m_side }
 	pub fn get_move_text(&self) -> &String { &self.m_game_move }
 	pub fn get_move_number(&self) -> &u32 { &self.m_move_number }
-	pub fn get_next_move(&self) -> &Option<Box<Game>> { &self.m_main_line_next }
-	pub fn get_next_move_mut(&mut self) -> &mut Option<Box<Game>> { &mut self.m_main_line_next }
+	pub fn get_next_move(&self) -> &Option<Box<Game>> { &self.m_next }
+	pub fn get_next_move_mut(&mut self) -> &mut Option<Box<Game>> { &mut self.m_next }
 	//pub fn is_move_empty(&self) -> bool { !self.is_result() && self.m_game_move == "".to_string() }
 	pub fn is_result(&self) -> bool { self.m_is_result }
 	pub fn get_variations(&self) -> &Vec<Game> { &self.m_variations }
@@ -126,9 +126,9 @@ impl Game {
 
 impl Drop for Game {
 	fn drop(&mut self) {
-		let mut next_game = self.m_main_line_next.take();
+		let mut next_game = self.m_next.take();
 		while let Some(mut game) = next_game {
-			next_game = game.m_main_line_next.take();
+			next_game = game.m_next.take();
 		}
 
 		// No need to drop m_variations since this is handled automatically

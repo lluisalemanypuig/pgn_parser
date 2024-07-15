@@ -43,6 +43,12 @@ impl Comment {
 			m_tags: Vec::new()
 		}
 	}
+	pub fn new_data(text: String, tags: Vec<(String,String)>) -> Comment {
+		Comment {
+			m_text: text,
+			m_tags: tags
+		}
+	}
 	
 	/* GETTERS */
 	

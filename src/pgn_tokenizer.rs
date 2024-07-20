@@ -87,10 +87,10 @@ pub type AllTokenTypes = Vec<TokenType>;
 
 fn is_move_number(str: &String) -> Option<TokenType> {
 	let re = Regex::new(r"^(?<move_number>[0-9]+)(?<side>\.+)$").unwrap();
-	if let Some(caps) = re.captures(str) {
+	if let Some(capture) = re.captures(str) {
 		Some(TokenType::MoveNumber{
-			id: caps["move_number"].parse::<u32>().unwrap(),
-			side: if caps["side"] == ".".to_string() { Side::White } else { Side::Black }
+			id: capture["move_number"].parse::<u32>().unwrap(),
+			side: if capture["side"] == ".".to_string() { Side::White } else { Side::Black }
 		})
 	}
 	else {

@@ -37,9 +37,7 @@ use crate::comment;
 pub struct PGNTreeBuilder {
 	m_tokens: pgn_tokenizer::AllTokens,
 	m_token_types: pgn_tokenizer::AllTokenTypes,
-	m_num_tokens: usize,
-	
-	m_tab: String
+	m_num_tokens: usize
 }
 
 struct ParseResult {
@@ -52,8 +50,7 @@ impl PGNTreeBuilder {
 		PGNTreeBuilder {
 			m_tokens: pgn_tokenizer::AllTokens::new(),
 			m_token_types: pgn_tokenizer::AllTokenTypes::new(),
-			m_num_tokens: 0,
-			m_tab: String::new()
+			m_num_tokens: 0
 		}
 	}
 	
@@ -183,10 +180,8 @@ impl PGNTreeBuilder {
 			self.remove_token(i);
 			i += 1;
 		}
-		else {
-			if expect_move_id {
-				panic!("I was expecting a move id at move number '{move_number}', side '{:#?}'! Your pgn is probably malformed.", side);
-			}
+		else if expect_move_id {
+			panic!("I was expecting a move id at move number '{move_number}', side '{:#?}'! Your pgn is probably malformed.", side);
 		}
 		
 		g.set_move_text(self.remove_token(i), &side, move_number);
@@ -202,21 +197,19 @@ impl PGNTreeBuilder {
 
 					self.remove_token(i);
 					
-					self.m_tab.push_str("    ");
 					let parse = self.build_game_tree_rec(
 						i + 1,
 						true,
 						move_number,
 						side.clone()
 					);
-					self.m_tab.replace_range(0..4, "");
 					
 					if let ParseResult { game: Some(gg), next } = parse {
 						g.add_variation(gg);
 						i = next;
 					}
 					else {
-						panic!("{}Unexpected wrong return", self.m_tab);
+						panic!("Unexpected wrong return");
 					}
 				},
 
@@ -242,7 +235,6 @@ impl PGNTreeBuilder {
 				return ParseResult { game: Some(g), next: i + 1 };
 			}
 			
-			self.m_tab.push_str("    ");
 			let next_side = pgn_tokenizer::other_side(&side);
 			let parse = self.build_game_tree_rec(
 				i,
@@ -250,7 +242,6 @@ impl PGNTreeBuilder {
 				move_number + if next_side == pgn_tokenizer::Side::White { 1 } else { 0 },
 				next_side
 			);
-			self.m_tab.replace_range(0..4, "");
 			
 			if let ParseResult { game: Some(gg), next } = parse {
 				g.set_next_move(gg);

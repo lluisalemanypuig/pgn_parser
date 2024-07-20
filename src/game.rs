@@ -137,9 +137,33 @@ impl Drop for GameTree {
 	}
 }
 
+pub enum TagType {
+	Event,
+	Site,
+	Date,
+	Round,
+	White,
+	Black,
+	Result,
+	WhiteElo,
+	WhiteTeam,
+	WhiteTitle,
+	BlackElo,
+	BlackTeam,
+	BlackTitle,
+	TimeControl,
+	Termination,
+	Board,
+	Annotator,
+	Variant,
+	ECO,
+	Opening,
+	Other(String)
+}
+
 pub struct Game {
 	m_tree: GameTree,
-	m_tags: Vec<(String,String)>
+	m_tags: Vec<(TagType,String)>
 }
 
 impl Game {
@@ -154,7 +178,7 @@ impl Game {
 		self.m_tree = tree;
 	}
 
-	pub fn add_game_tag(&mut self, tag: (String, String)) {
+	pub fn add_game_tag(&mut self, tag: (TagType, String)) {
 		self.m_tags.push(tag);
 	}
 }

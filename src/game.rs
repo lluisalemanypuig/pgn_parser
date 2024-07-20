@@ -34,20 +34,20 @@ use crate::comment;
 use crate::pgn_tokenizer;
 
 #[derive(Debug,Eq,PartialEq)]
-pub struct Game {
+pub struct GameTree {
 	m_game_move: String,
 	m_is_result: bool,
 	m_move_number: u32,
 	m_side: Option<pgn_tokenizer::Side>,
 	m_comments: Vec<comment::Comment>,
 	
-	m_next: Option<Box<Game>>,
-	m_variations: Vec<Game>,
+	m_next: Option<Box<GameTree>>,
+	m_variations: Vec<GameTree>,
 }
 
-impl Game {
-	pub fn new() -> Game {
-		Game {
+impl GameTree {
+	pub fn new() -> GameTree {
+		GameTree {
 			m_game_move: "".to_string(),
 			m_is_result: false,
 			m_move_number: 0,
@@ -64,12 +64,12 @@ impl Game {
 		move_number: u32,
 		side: Option<pgn_tokenizer::Side>,
 		comments: Vec<comment::Comment>,
-		main_line_next: Option<Box<Game>>,
-		variations: Vec<Game>
+		main_line_next: Option<Box<GameTree>>,
+		variations: Vec<GameTree>
 	)
-	-> Game
+	-> GameTree
 	{
-		Game {
+		GameTree {
 			m_game_move: game_move,
 			m_is_result: is_result,
 			m_move_number: move_number,
@@ -98,11 +98,11 @@ impl Game {
 		self.m_move_number = 0;
 	}
 
-	pub fn set_next_move(&mut self, game: Game) {
+	pub fn set_next_move(&mut self, game: GameTree) {
 		self.m_next = Some(Box::new(game));
 	}
 
-	pub fn add_variation(&mut self, variation: Game) {
+	pub fn add_variation(&mut self, variation: GameTree) {
 		self.m_variations.push(variation);
 	}
 
@@ -115,16 +115,16 @@ impl Game {
 	pub fn get_side(&self) -> &Option<pgn_tokenizer::Side> { &self.m_side }
 	pub fn get_move_text(&self) -> &String { &self.m_game_move }
 	pub fn get_move_number(&self) -> &u32 { &self.m_move_number }
-	pub fn get_next_move(&self) -> &Option<Box<Game>> { &self.m_next }
-	pub fn get_next_move_mut(&mut self) -> &mut Option<Box<Game>> { &mut self.m_next }
+	pub fn get_next_move(&self) -> &Option<Box<GameTree>> { &self.m_next }
+	pub fn get_next_move_mut(&mut self) -> &mut Option<Box<GameTree>> { &mut self.m_next }
 	//pub fn is_move_empty(&self) -> bool { !self.is_result() && self.m_game_move == "".to_string() }
 	pub fn is_result(&self) -> bool { self.m_is_result }
-	pub fn get_variations(&self) -> &Vec<Game> { &self.m_variations }
+	pub fn get_variations(&self) -> &Vec<GameTree> { &self.m_variations }
 	pub fn get_comments(&self) -> &Vec<comment::Comment> { &self.m_comments }
 	
 }
 
-impl Drop for Game {
+impl Drop for GameTree {
 	fn drop(&mut self) {
 		let mut next_game = self.m_next.take();
 		while let Some(mut game) = next_game {
@@ -134,5 +134,27 @@ impl Drop for Game {
 		// No need to drop m_variations since this is handled automatically
 		// by Rust. The deallocation of each element in m_variations is handled
 		// by this function.
+	}
+}
+
+pub struct Game {
+	m_tree: GameTree,
+	m_tags: Vec<(String,String)>
+}
+
+impl Game {
+	pub fn new() -> Game {
+		Game {
+			m_tree: GameTree::new(),
+			m_tags: Vec::new()
+		}
+	}
+
+	pub fn set_tree(&mut self, tree: GameTree) {
+		self.m_tree = tree;
+	}
+
+	pub fn add_game_tag(&mut self, tag: (String, String)) {
+		self.m_tags.push(tag);
 	}
 }

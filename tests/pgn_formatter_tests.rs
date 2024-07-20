@@ -57,14 +57,14 @@ mod tests {
 		builder
 	}
 
-	fn make_game(file: String) -> game::Game {
+	fn make_game(file: String) -> game::GameTree {
 		let mut builder = make_builder(file);
 		if let Some(g) = builder.build_game_tree() {
 			return g;
 		}
 
 		assert_eq!(true, false);
-		game::Game::new()
+		game::GameTree::new()
 	}
 
 	fn game_to_string(

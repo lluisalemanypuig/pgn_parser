@@ -41,7 +41,7 @@ pub struct PGNTreeBuilder {
 }
 
 struct ParseResult {
-	pub game: Option<game::Game>,
+	pub game: Option<game::GameTree>,
 	pub next: usize
 }
 
@@ -167,7 +167,7 @@ impl PGNTreeBuilder {
 			return ParseResult { game: None, next: self.m_num_tokens };
 		}
 		
-		let mut g = game::Game::new();
+		let mut g = game::GameTree::new();
 		if let pgn_tokenizer::TokenType::Result { result: _ } = &self.m_token_types[i] {
 			let res = self.remove_token(i);
 			g.set_result(res);
@@ -252,7 +252,7 @@ impl PGNTreeBuilder {
 		ParseResult { game: Some(g), next: i }
 	}
 	
-	pub fn build_game_tree(&mut self) -> Option<game::Game> {
+	pub fn build_game_tree(&mut self) -> Option<game::GameTree> {
 		let parse_result = self.build_game_tree_rec(
 			0,
 			true,

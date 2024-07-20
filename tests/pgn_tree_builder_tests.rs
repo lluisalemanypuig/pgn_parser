@@ -57,18 +57,18 @@
 		builder
 	}
 
-	fn make_game(file: String) -> game::Game {
+	fn make_game(file: String) -> game::GameTree {
 		let mut builder = make_builder(file);
 		if let Some(g) = builder.build_game_tree() {
 			return g;
 		}
 
 		assert_eq!(true, false);
-		game::Game::new()
+		game::GameTree::new()
 	}
 
-	fn result_move(res: &str) -> game::Game {
-		game::Game::new_data(
+	fn result_move(res: &str) -> game::GameTree {
+		game::GameTree::new_data(
 			res.to_string(),
 			true,
 			0,
@@ -93,8 +93,8 @@
 
 	// -------------------------------------------------
 
-	fn make_game_0000() -> game::Game {
-		game::Game::new_data(
+	fn make_game_0000() -> game::GameTree {
+		game::GameTree::new_data(
 			String::from("d4"),
 			false,
 			1,
@@ -123,15 +123,15 @@
 
 	// -------------------------------------------------
 
-	fn make_game_0001() -> game::Game {
-		game::Game::new_data(
+	fn make_game_0001() -> game::GameTree {
+		game::GameTree::new_data(
 			String::from("d4"),
 			false,
 			1,
 			Some(pgn_tokenizer::Side::White),
 			vec![],
 			Some(Box::new(
-				game::Game::new_data(
+				game::GameTree::new_data(
 					String::from("d5"),
 					false,
 					1,
@@ -164,15 +164,15 @@
 
 	// -------------------------------------------------
 
-	fn make_game_0002() -> game::Game {
-		game::Game::new_data(
+	fn make_game_0002() -> game::GameTree {
+		game::GameTree::new_data(
 			String::from("d4"),
 			false,
 			1,
 			Some(pgn_tokenizer::Side::White),
 			vec![],
 			Some(Box::new(
-				game::Game::new_data(
+				game::GameTree::new_data(
 					String::from("d5"),
 					false,
 					1,
@@ -183,7 +183,7 @@
 				)
 			)),
 			vec![
-				game::Game::new_data(
+				game::GameTree::new_data(
 					String::from("e4"),
 					false,
 					1,
@@ -215,15 +215,15 @@
 
 	// -------------------------------------------------
 
-	fn make_game_0003() -> game::Game {
-		game::Game::new_data(
+	fn make_game_0003() -> game::GameTree {
+		game::GameTree::new_data(
 			String::from("d4"),
 			false,
 			1,
 			Some(pgn_tokenizer::Side::White),
 			vec![],
 			Some(Box::new(
-				game::Game::new_data(
+				game::GameTree::new_data(
 					String::from("d5"),
 					false,
 					1,
@@ -234,14 +234,14 @@
 				)
 			)),
 			vec![
-				game::Game::new_data(
+				game::GameTree::new_data(
 					String::from("e4"),
 					false,
 					1,
 					Some(pgn_tokenizer::Side::White),
 					vec![],
 					Some(Box::new(
-						game::Game::new_data(
+						game::GameTree::new_data(
 							String::from("e5"),
 							false,
 							1,
@@ -276,15 +276,15 @@
 
 	// -------------------------------------------------
 
-	fn make_game_0004() -> game::Game {
-		game::Game::new_data(
+	fn make_game_0004() -> game::GameTree {
+		game::GameTree::new_data(
 			String::from("d4"),
 			false,
 			1,
 			Some(pgn_tokenizer::Side::White),
 			vec![],
 			Some(Box::new(
-				game::Game::new_data(
+				game::GameTree::new_data(
 					String::from("d5"),
 					false,
 					1,
@@ -295,7 +295,7 @@
 				)
 			)),
 			vec![
-				game::Game::new_data(
+				game::GameTree::new_data(
 					String::from("e4"),
 					false,
 					1,
@@ -304,7 +304,7 @@
 					None,
 					vec![],
 				),
-				game::Game::new_data(
+				game::GameTree::new_data(
 					String::from("f4"),
 					false,
 					1,
@@ -336,15 +336,15 @@
 
 	// -------------------------------------------------
 
-	fn make_game_0005() -> game::Game {
-		game::Game::new_data(
+	fn make_game_0005() -> game::GameTree {
+		game::GameTree::new_data(
 			String::from("d4"),
 			false,
 			1,
 			Some(pgn_tokenizer::Side::White),
 			vec![],
 			Some(Box::new(
-				game::Game::new_data(
+				game::GameTree::new_data(
 					String::from("d5"),
 					false,
 					1,
@@ -355,14 +355,14 @@
 				)
 			)),
 			vec![
-				game::Game::new_data(
+				game::GameTree::new_data(
 					String::from("e4"),
 					false,
 					1,
 					Some(pgn_tokenizer::Side::White),
 					vec![],
 					Some(Box::new(
-						game::Game::new_data(
+						game::GameTree::new_data(
 							String::from("e5"),
 							false,
 							1,
@@ -374,7 +374,7 @@
 					)),
 					vec![],
 				),
-				game::Game::new_data(
+				game::GameTree::new_data(
 					String::from("f4"),
 					false,
 					1,
@@ -406,15 +406,15 @@
 
 	// -------------------------------------------------
 
-	fn make_game_0006() -> game::Game {
-		game::Game::new_data(
+	fn make_game_0006() -> game::GameTree {
+		game::GameTree::new_data(
 			String::from("d4"),
 			false,
 			1,
 			Some(pgn_tokenizer::Side::White),
 			vec![],
 			Some(Box::new(
-				game::Game::new_data(
+				game::GameTree::new_data(
 					String::from("d5"),
 					false,
 					1,
@@ -425,14 +425,14 @@
 				)
 			)),
 			vec![
-				game::Game::new_data(
+				game::GameTree::new_data(
 					String::from("e4"),
 					false,
 					1,
 					Some(pgn_tokenizer::Side::White),
 					vec![],
 					Some(Box::new(
-						game::Game::new_data(
+						game::GameTree::new_data(
 							String::from("e5"),
 							false,
 							1,
@@ -444,14 +444,14 @@
 					)),
 					vec![],
 				),
-				game::Game::new_data(
+				game::GameTree::new_data(
 					String::from("f4"),
 					false,
 					1,
 					Some(pgn_tokenizer::Side::White),
 					vec![],
 					Some(Box::new(
-						game::Game::new_data(
+						game::GameTree::new_data(
 							String::from("Cc6"),
 							false,
 							1,
@@ -487,29 +487,29 @@
 
 	// -------------------------------------------------
 
-	fn make_game_0007() -> game::Game {
-		game::Game::new_data(
+	fn make_game_0007() -> game::GameTree {
+		game::GameTree::new_data(
 			String::from("d4"),
 			false,
 			1,
 			Some(pgn_tokenizer::Side::White),
 			vec![],
 			Some(Box::new(
-				game::Game::new_data(
+				game::GameTree::new_data(
 					String::from("d5"),
 					false,
 					1,
 					Some(pgn_tokenizer::Side::Black),
 					vec![],
 					Some(Box::new(
-						game::Game::new_data(
+						game::GameTree::new_data(
 							String::from("c4"),
 							false,
 							2,
 							Some(pgn_tokenizer::Side::White),
 							vec![],
 							Some(Box::new(
-								game::Game::new_data(
+								game::GameTree::new_data(
 									String::from("c6"),
 									false,
 									2,
@@ -551,29 +551,29 @@
 
 	// -------------------------------------------------
 
-	fn make_game_0008() -> game::Game {
-		game::Game::new_data(
+	fn make_game_0008() -> game::GameTree {
+		game::GameTree::new_data(
 			String::from("d4"),
 			false,
 			1,
 			Some(pgn_tokenizer::Side::White),
 			vec![],
 			Some(Box::new(
-				game::Game::new_data(
+				game::GameTree::new_data(
 					String::from("d5"),
 					false,
 					1,
 					Some(pgn_tokenizer::Side::Black),
 					vec![],
 					Some(Box::new(
-						game::Game::new_data(
+						game::GameTree::new_data(
 							String::from("c4"),
 							false,
 							2,
 							Some(pgn_tokenizer::Side::White),
 							vec![],
 							Some(Box::new(
-								game::Game::new_data(
+								game::GameTree::new_data(
 									String::from("c6"),
 									false,
 									2,
@@ -581,7 +581,7 @@
 									vec![],
 									None,
 									vec![
-										game::Game::new_data(
+										game::GameTree::new_data(
 											String::from("e5"),
 											false,
 											2,
@@ -625,8 +625,8 @@
 
 	// -------------------------------------------------
 
-	fn make_game_0009() -> game::Game {
-		game::Game::new_data(
+	fn make_game_0009() -> game::GameTree {
+		game::GameTree::new_data(
 			String::from("d4"),
 			false,
 			1,
@@ -661,8 +661,8 @@
 
 	// -------------------------------------------------
 
-	fn make_game_0010() -> game::Game {
-		game::Game::new_data(
+	fn make_game_0010() -> game::GameTree {
+		game::GameTree::new_data(
 			String::from("d4"),
 			false,
 			1,
@@ -674,7 +674,7 @@
 				)
 			],
 			Some(Box::new(
-				game::Game::new_data(
+				game::GameTree::new_data(
 					String::from("d5"),
 					false,
 					1,
@@ -713,8 +713,8 @@
 
 	// -------------------------------------------------
 
-	fn make_game_0011() -> game::Game {
-		game::Game::new_data(
+	fn make_game_0011() -> game::GameTree {
+		game::GameTree::new_data(
 			String::from("d4"),
 			false,
 			1,
@@ -726,7 +726,7 @@
 				)
 			],
 			Some(Box::new(
-				game::Game::new_data(
+				game::GameTree::new_data(
 					String::from("d5"),
 					false,
 					1,
@@ -737,7 +737,7 @@
 				)
 			)),
 			vec![
-				game::Game::new_data(
+				game::GameTree::new_data(
 					String::from("e4"),
 					false,
 					1,
@@ -775,15 +775,15 @@
 
 	// -------------------------------------------------
 
-	fn make_game_0012() -> game::Game {
-		game::Game::new_data(
+	fn make_game_0012() -> game::GameTree {
+		game::GameTree::new_data(
 			String::from("d4"),
 			false,
 			1,
 			Some(pgn_tokenizer::Side::White),
 			vec![make_comment("Hola", vec![])],
 			Some(Box::new(
-				game::Game::new_data(
+				game::GameTree::new_data(
 					String::from("d5"),
 					false,
 					1,
@@ -794,14 +794,14 @@
 				)
 			)),
 			vec![
-				game::Game::new_data(
+				game::GameTree::new_data(
 					String::from("e4"),
 					false,
 					1,
 					Some(pgn_tokenizer::Side::White),
 					vec![make_comment("Adéu", vec![])],
 					Some(Box::new(
-						game::Game::new_data(
+						game::GameTree::new_data(
 							String::from("e5"),
 							false,
 							1,
@@ -837,15 +837,15 @@
 
 	// -------------------------------------------------
 
-	fn make_game_0013() -> game::Game {
-		game::Game::new_data(
+	fn make_game_0013() -> game::GameTree {
+		game::GameTree::new_data(
 			String::from("d4"),
 			false,
 			1,
 			Some(pgn_tokenizer::Side::White),
 			vec![make_comment("A A", vec![("%clk", "9")])],
 			Some(Box::new(
-				game::Game::new_data(
+				game::GameTree::new_data(
 					String::from("d5"),
 					false,
 					1,
@@ -856,7 +856,7 @@
 				)
 			)),
 			vec![
-				game::Game::new_data(
+				game::GameTree::new_data(
 					String::from("e4"),
 					false,
 					1,
@@ -865,7 +865,7 @@
 					None,
 					vec![],
 				),
-				game::Game::new_data(
+				game::GameTree::new_data(
 					String::from("f4"),
 					false,
 					1,
@@ -898,15 +898,15 @@
 
 	// -------------------------------------------------
 
-	fn make_game_0014() -> game::Game {
-		game::Game::new_data(
+	fn make_game_0014() -> game::GameTree {
+		game::GameTree::new_data(
 			String::from("d4"),
 			false,
 			1,
 			Some(pgn_tokenizer::Side::White),
 			vec![make_comment("A A", vec![("%clk", "9"), ("%eval", "-9")])],
 			Some(Box::new(
-				game::Game::new_data(
+				game::GameTree::new_data(
 					String::from("d5"),
 					false,
 					1,
@@ -917,14 +917,14 @@
 				)
 			)),
 			vec![
-				game::Game::new_data(
+				game::GameTree::new_data(
 					String::from("e4"),
 					false,
 					1,
 					Some(pgn_tokenizer::Side::White),
 					vec![make_comment("B B", vec![("%clk", "9"), ("%eval", "-9")])],
 					Some(Box::new(
-						game::Game::new_data(
+						game::GameTree::new_data(
 							String::from("e5"),
 							false,
 							1,
@@ -936,7 +936,7 @@
 					)),
 					vec![],
 				),
-				game::Game::new_data(
+				game::GameTree::new_data(
 					String::from("f4"),
 					false,
 					1,
@@ -969,15 +969,15 @@
 
 	// -------------------------------------------------
 
-	fn make_game_0015() -> game::Game {
-		game::Game::new_data(
+	fn make_game_0015() -> game::GameTree {
+		game::GameTree::new_data(
 			String::from("d4"),
 			false,
 			1,
 			Some(pgn_tokenizer::Side::White),
 			vec![make_comment("A A", vec![("%clk", "9"), ("%eval", "-9")])],
 			Some(Box::new(
-				game::Game::new_data(
+				game::GameTree::new_data(
 					String::from("d5"),
 					false,
 					1,
@@ -988,14 +988,14 @@
 				)
 			)),
 			vec![
-				game::Game::new_data(
+				game::GameTree::new_data(
 					String::from("e4"),
 					false,
 					1,
 					Some(pgn_tokenizer::Side::White),
 					vec![make_comment("B B", vec![("%clk", "9"), ("%eval", "-9")])],
 					Some(Box::new(
-						game::Game::new_data(
+						game::GameTree::new_data(
 							String::from("e5"),
 							false,
 							1,
@@ -1007,14 +1007,14 @@
 					)),
 					vec![],
 				),
-				game::Game::new_data(
+				game::GameTree::new_data(
 					String::from("f4"),
 					false,
 					1,
 					Some(pgn_tokenizer::Side::White),
 					vec![make_comment("D D", vec![("%clk", "9"), ("%eval", "-9")])],
 					Some(Box::new(
-						game::Game::new_data(
+						game::GameTree::new_data(
 							String::from("Cc6"),
 							false,
 							1,
@@ -1050,29 +1050,29 @@
 	
 	// -------------------------------------------------
 
-	fn make_game_0016() -> game::Game {
-		game::Game::new_data(
+	fn make_game_0016() -> game::GameTree {
+		game::GameTree::new_data(
 			String::from("d4"),
 			false,
 			1,
 			Some(pgn_tokenizer::Side::White),
 			vec![],
 			Some(Box::new(
-				game::Game::new_data(
+				game::GameTree::new_data(
 					String::from("d5"),
 					false,
 					1,
 					Some(pgn_tokenizer::Side::Black),
 					vec![make_comment("B B", vec![])],
 					Some(Box::new(
-						game::Game::new_data(
+						game::GameTree::new_data(
 							String::from("c4"),
 							false,
 							2,
 							Some(pgn_tokenizer::Side::White),
 							vec![],
 							Some(Box::new(
-								game::Game::new_data(
+								game::GameTree::new_data(
 									String::from("c6"),
 									false,
 									2,
@@ -1114,29 +1114,29 @@
 
 	// -------------------------------------------------
 
-	fn make_game_0017() -> game::Game {
-		game::Game::new_data(
+	fn make_game_0017() -> game::GameTree {
+		game::GameTree::new_data(
 			String::from("d4"),
 			false,
 			1,
 			Some(pgn_tokenizer::Side::White),
 			vec![],
 			Some(Box::new(
-				game::Game::new_data(
+				game::GameTree::new_data(
 					String::from("d5"),
 					false,
 					1,
 					Some(pgn_tokenizer::Side::Black),
 					vec![],
 					Some(Box::new(
-						game::Game::new_data(
+						game::GameTree::new_data(
 							String::from("c4"),
 							false,
 							2,
 							Some(pgn_tokenizer::Side::White),
 							vec![],
 							Some(Box::new(
-								game::Game::new_data(
+								game::GameTree::new_data(
 									String::from("c6"),
 									false,
 									2,
@@ -1144,7 +1144,7 @@
 									vec![],
 									None,
 									vec![
-										game::Game::new_data(
+										game::GameTree::new_data(
 											String::from("e5"),
 											false,
 											2,

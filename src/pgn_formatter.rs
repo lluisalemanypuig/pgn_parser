@@ -62,7 +62,7 @@ impl PgnFormatter {
 		self
 	}
 
-	fn to_string_rec(&self, g: &game::Game, show_move_number: bool, s: &mut String) {
+	fn to_string_rec(&self, g: &game::GameTree, show_move_number: bool, s: &mut String) {
 		if show_move_number {
 			if let Some(side) = g.get_side() {
 				s.push_str(&g.get_move_number().to_string());
@@ -120,7 +120,7 @@ impl PgnFormatter {
 		}
 	}
 
-	pub fn to_string(&self, g: &game::Game) -> String {
+	pub fn to_string(&self, g: &game::GameTree) -> String {
 		let mut s = String::new();
 		self.to_string_rec(g, true, &mut s);
 		s

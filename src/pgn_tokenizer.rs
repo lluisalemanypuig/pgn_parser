@@ -37,6 +37,7 @@ enum CharacterType {
 	Number,
 	Letter,
 	Whitespace,
+	Quote,
 	CurlyBracket(bool),
 	SquareBracket(bool),
 	Parenthesis(bool),
@@ -48,6 +49,7 @@ fn classify_char(c: char) -> CharacterType {
 		'0'..='9' => CharacterType::Number,
 		'A'..='Z' => CharacterType::Letter,
 		'a'..='z' => CharacterType::Letter,
+		'"' => CharacterType::Quote,
 		'(' => CharacterType::Parenthesis(true),
 		')' => CharacterType::Parenthesis(false),
 		'{' => CharacterType::CurlyBracket(true),
@@ -140,39 +142,64 @@ pub fn tokenize(s: String) -> (AllTokens, AllTokenTypes) {
 	let mut token_types: AllTokenTypes = Vec::new();
 
 	let mut next_str: String = String::new();
+
+	let mut open_quote = false;
 	for c in s.chars() {
 		
 		match classify_char(c) {
-			CharacterType::Number | CharacterType::Letter | CharacterType::Other => next_str.push(c),
-			CharacterType::Whitespace => {
-				if next_str != "".to_string() {
+			CharacterType::Number |
+			CharacterType::Letter |
+			CharacterType::Other => next_str.push(c),
+
+			CharacterType::Quote => {
+				next_str.push(c);
+				if open_quote {
+					open_quote = false;
 					add_token(next_str, &mut tokens, &mut token_types);
 					next_str = "".to_string();
 				}
+				else {
+					open_quote = true;
+				}
+			},
+
+			CharacterType::Whitespace => {
+				if !open_quote {
+					if next_str != "".to_string() {
+						add_token(next_str, &mut tokens, &mut token_types);
+						next_str = "".to_string();
+					}
+				}
 			},
 			CharacterType::Parenthesis(o) => {
-				if next_str != "".to_string() {
-					add_token(next_str, &mut tokens, &mut token_types);
+				if !open_quote {
+					if next_str != "".to_string() {
+						add_token(next_str, &mut tokens, &mut token_types);
+					}
+					tokens.push(c.to_string());
+					token_types.push(TokenType::VariantDelim{open: o});
+					next_str = "".to_string();
 				}
-				tokens.push(c.to_string());
-				token_types.push(TokenType::VariantDelim{open: o});
-				next_str = "".to_string();
 			},
 			CharacterType::CurlyBracket(o) => {
-				if next_str != "".to_string() {
-					add_token(next_str, &mut tokens, &mut token_types);
+				if !open_quote {
+					if next_str != "".to_string() {
+						add_token(next_str, &mut tokens, &mut token_types);
+					}
+					tokens.push(c.to_string());
+					token_types.push(TokenType::CommentDelim{open: o});
+					next_str = "".to_string();
 				}
-				tokens.push(c.to_string());
-				token_types.push(TokenType::CommentDelim{open: o});
-				next_str = "".to_string();
 			},
 			CharacterType::SquareBracket(o) => {
-				if next_str != "".to_string() {
-					add_token(next_str, &mut tokens, &mut token_types);
+				if !open_quote {
+					if next_str != "".to_string() {
+						add_token(next_str, &mut tokens, &mut token_types);
+					}
+					tokens.push(c.to_string());
+					token_types.push(TokenType::TagDelim{open: o});
+					next_str = "".to_string();
 				}
-				tokens.push(c.to_string());
-				token_types.push(TokenType::TagDelim{open: o});
-				next_str = "".to_string();
 			}
 		}
 	}

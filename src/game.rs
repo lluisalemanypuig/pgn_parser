@@ -161,6 +161,30 @@ pub enum TagType {
 	Other(String)
 }
 
+pub fn classify(s: String) -> TagType {
+	if s == "Event".to_string() { return TagType::Event; }
+	if s == "Site".to_string() { return TagType::Site; }
+	if s == "Date".to_string() { return TagType::Date; }
+	if s == "Round".to_string() { return TagType::Round; }
+	if s == "White".to_string() { return TagType::White; }
+	if s == "Black".to_string() { return TagType::Black; }
+	if s == "Result".to_string() { return TagType::Result; }
+	if s == "WhiteElo".to_string() { return TagType::WhiteElo; }
+	if s == "WhiteTeam".to_string() { return TagType::WhiteTeam; }
+	if s == "WhiteTitle".to_string() { return TagType::WhiteTitle; }
+	if s == "BlackElo".to_string() { return TagType::BlackElo; }
+	if s == "BlackTeam".to_string() { return TagType::BlackTeam; }
+	if s == "BlackTitle".to_string() { return TagType::BlackTitle; }
+	if s == "TimeControl".to_string() { return TagType::TimeControl; }
+	if s == "Termination".to_string() { return TagType::Termination; }
+	if s == "Board".to_string() { return TagType::Board; }
+	if s == "Annotator".to_string() { return TagType::Annotator; }
+	if s == "Variant".to_string() { return TagType::Variant; }
+	if s == "ECO".to_string() { return TagType::ECO; }
+	if s == "Opening".to_string() { return TagType::Opening; }
+	return TagType::Other(s);
+}
+
 pub struct Game {
 	m_tree: GameTree,
 	m_tags: Vec<(TagType,String)>
@@ -180,5 +204,9 @@ impl Game {
 
 	pub fn add_game_tag(&mut self, tag: (TagType, String)) {
 		self.m_tags.push(tag);
+	}
+
+	pub fn get_tree(&self) -> &GameTree {
+		&self.m_tree
 	}
 }

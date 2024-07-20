@@ -255,9 +255,10 @@ impl PGNTreeBuilder {
 		ParseResult { game: Some(g), next: i }
 	}
 	
-	pub fn build_game_tree(&mut self) -> Option<game::GameTree> {
+	pub fn build_game_tree(&mut self, i: usize) -> Option<game::GameTree> {
+
 		let parse_result = self.build_game_tree_rec(
-			0,
+			i,
 			true,
 			1,
 			pgn_tokenizer::Side::White
@@ -266,5 +267,27 @@ impl PGNTreeBuilder {
 		assert_eq!(self.m_tokens.len(), 0);
 		
 		parse_result.game
+	}
+
+	pub fn build_game(&mut self) -> Option<game::Game> {
+		let mut g = game::Game::new();
+
+		let mut i = 0;
+		while let pgn_tokenizer::TokenType::TagDelim { open: true } = &self.m_token_types[i] {
+			self.remove_token(i);
+
+			let tag_type = game::classify(self.remove_token(i + 1));
+			g.add_game_tag((tag_type, self.remove_token(i + 2)));
+
+			self.remove_token(i + 3);
+
+			i += 4;
+		}
+
+		let parse_result = self.build_game_tree(i);
+
+		g.set_tree(parse_result.unwrap());
+
+		Some(g)
 	}
 }

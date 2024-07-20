@@ -50,17 +50,19 @@ fn analyze_file(p: String) {
 	
 	let (all_tokens, all_token_types) =
 		pgn_tokenizer::tokenize(entire_file_str);
-	
+
+	println!("{:#?}", all_token_types);
+
 	let mut builder = pgn_tree_builder::PGNTreeBuilder::new();
 	builder.set_token_list(all_tokens, all_token_types);
 
-	if let Some(game) = builder.build_game_tree() {
+	if let Some(game) = builder.build_game() {
 		//println!("{:#?}", game);
 		let res = pgn_formatter::PgnFormatter::new()
 			.set_print_comments(true)
 			.set_print_variation(true)
 			.set_print_result(true)
-			.to_string(&game);
+			.to_string(game.get_tree());
 
 		println!("{res}");
 		println!("");

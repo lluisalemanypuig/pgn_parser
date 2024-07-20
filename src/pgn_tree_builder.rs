@@ -125,7 +125,10 @@ impl PGNTreeBuilder {
 					
 					let (next, tag_name, tag_text) = self.parse_comment_tag(i);
 					i = next;
-					com.add_tag(tag_name, tag_text);
+					com.add_tag(
+						comment::classify_tag(tag_name),
+						tag_text
+					);
 				},
 				
 				pgn_tokenizer::TokenType::Text => {

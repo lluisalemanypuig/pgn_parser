@@ -30,10 +30,31 @@
  *
  ********************************************************************/
 
+ #[derive(Debug,Eq,PartialEq)]
+pub enum TagType {
+	Clock,
+	Eval,
+	Other(String)
+}
+
+pub fn classify_tag(s: String) -> TagType {
+	if s == "%clk".to_string() { return TagType::Clock; }
+	if s == "%eval".to_string() { return TagType::Eval; }
+	return TagType::Other(s);
+}
+
+pub fn tag_to_string(t: &TagType) -> String {
+	match &t {
+		TagType::Clock => "%clk".to_string(),
+		TagType::Eval => "%eval".to_string(),
+		TagType::Other(s) => s.clone()
+	}
+}
+
 #[derive(Debug,Eq,PartialEq)]
 pub struct Comment {
 	m_text: String,
-	m_tags: Vec<(String, String)>
+	m_tags: Vec<(TagType, String)>
 }
 
 impl Comment {
@@ -43,7 +64,7 @@ impl Comment {
 			m_tags: Vec::new()
 		}
 	}
-	pub fn new_data(text: String, tags: Vec<(String,String)>) -> Comment {
+	pub fn new_data(text: String, tags: Vec<(TagType,String)>) -> Comment {
 		Comment {
 			m_text: text,
 			m_tags: tags
@@ -53,14 +74,14 @@ impl Comment {
 	/* GETTERS */
 	
 	pub fn get_text(&self) -> &String { &self.m_text }
-	pub fn get_tags(&self) -> &Vec<(String,String)> { &self.m_tags }
+	pub fn get_tags(&self) -> &Vec<(TagType, String)> { &self.m_tags }
 	
 	/* MODIFIERS */
 	
 	pub fn set_text(&mut self, text: String) {
 		self.m_text = text;
 	}
-	pub fn add_tag(&mut self, tag_name: String, tag_text: String) {
+	pub fn add_tag(&mut self, tag_name: TagType, tag_text: String) {
 		self.m_tags.push((tag_name, tag_text));
 	}
 }

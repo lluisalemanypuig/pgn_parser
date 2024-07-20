@@ -85,7 +85,10 @@
 			tags
 			.iter()
 			.map(
-				|(a,b)| (a.to_string(), b.to_string())
+				|(a,b)| (
+					comment::classify_tag(a.to_string()),
+					b.to_string()
+				)
 			)
 			.collect()
 		)

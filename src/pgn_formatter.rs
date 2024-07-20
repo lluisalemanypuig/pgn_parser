@@ -30,6 +30,7 @@
  *
  ********************************************************************/
 
+ use crate::comment;
 use crate::game;
 use crate::pgn_tokenizer;
 
@@ -86,7 +87,7 @@ impl PgnFormatter {
 				
 				for tag in c.get_tags().iter() {
 					s.push_str("[");
-					s.push_str(&tag.0);
+					s.push_str(&comment::tag_to_string(&tag.0));
 					s.push_str(" ");
 					s.push_str(&tag.1);
 					s.push_str("] ");

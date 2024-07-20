@@ -59,7 +59,7 @@
 
 	fn make_game(file: String) -> game::GameTree {
 		let mut builder = make_builder(file);
-		if let Some(g) = builder.build_game_tree() {
+		if let Some(g) = builder.build_game_tree(0) {
 			return g;
 		}
 

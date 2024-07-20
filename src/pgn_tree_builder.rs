@@ -68,12 +68,12 @@ impl PGNTreeBuilder {
 	}
 	
 	fn token_index(&self, i: usize) -> usize { self.m_num_tokens - i - 1 }
-	fn remove_token(&mut self, i: usize) -> String {
+	fn retrieve_token(&mut self, i: usize) -> String {
 		self.m_tokens.remove(self.token_index(i))
 	}
 	
 	fn parse_comment_tag(&mut self, mut i: usize) -> (usize, String, String) {
-		let tag_name = self.remove_token(i);
+		let tag_name = self.retrieve_token(i);
 		i += 1;
 		
 		let mut text_tag = String::new();
@@ -87,12 +87,12 @@ impl PGNTreeBuilder {
 				
 				pgn_tokenizer::TokenType::TagDelim { open: false } => {
 					stop = true;
-					self.remove_token(i);
+					self.retrieve_token(i);
 					i += 1;
 				},
 				
 				pgn_tokenizer::TokenType::Text => {
-					text_tag.push_str( &self.remove_token(i) );
+					text_tag.push_str( &self.retrieve_token(i) );
 					i += 1;
 				},
 				
@@ -115,12 +115,12 @@ impl PGNTreeBuilder {
 			match &self.m_token_types[i] {
 				pgn_tokenizer::TokenType::CommentDelim { open: false } => {
 					stop = true;
-					self.remove_token(i);
+					self.retrieve_token(i);
 					i += 1;
 				},
 				
 				pgn_tokenizer::TokenType::TagDelim { open: true } => {
-					self.remove_token(i);
+					self.retrieve_token(i);
 					i += 1;
 					
 					let (next, tag_name, tag_text) = self.parse_comment_tag(i);
@@ -138,7 +138,7 @@ impl PGNTreeBuilder {
 					else {
 						text_comment.push_str(" ");
 					}
-					text_comment.push_str( &self.remove_token(i) );
+					text_comment.push_str( &self.retrieve_token(i) );
 					i += 1;
 				},
 				
@@ -172,7 +172,7 @@ impl PGNTreeBuilder {
 		
 		let mut g = game::GameTree::new();
 		if let pgn_tokenizer::TokenType::Result { result: _ } = &self.m_token_types[i] {
-			let res = self.remove_token(i);
+			let res = self.retrieve_token(i);
 			g.set_result(res);
 			return ParseResult { game: Some(g), next: i };
 		}
@@ -180,14 +180,14 @@ impl PGNTreeBuilder {
 		if let pgn_tokenizer::TokenType::MoveNumber { id, side: sid } = &self.m_token_types[i] {
 			assert_eq!(move_number, *id);
 			assert_eq!(side, *sid);
-			self.remove_token(i);
+			self.retrieve_token(i);
 			i += 1;
 		}
 		else if expect_move_id {
 			panic!("I was expecting a move id at move number '{move_number}', side '{:#?}'! Your pgn is probably malformed.", side);
 		}
 		
-		g.set_move_text(self.remove_token(i), &side, move_number);
+		g.set_move_text(self.retrieve_token(i), &side, move_number);
 		i += 1;
 		
 		// read a series of variants or comments
@@ -198,7 +198,7 @@ impl PGNTreeBuilder {
 				pgn_tokenizer::TokenType::VariantDelim { open: true } => {
 					found_variant_comment = true;
 
-					self.remove_token(i);
+					self.retrieve_token(i);
 					
 					let parse = self.build_game_tree_rec(
 						i + 1,
@@ -219,7 +219,7 @@ impl PGNTreeBuilder {
 				pgn_tokenizer::TokenType::CommentDelim { open: true } => {
 					found_variant_comment = true;
 
-					self.remove_token(i);
+					self.retrieve_token(i);
 					i += 1;
 					
 					let (comment, next) = self.parse_comment(i);
@@ -234,7 +234,7 @@ impl PGNTreeBuilder {
 		if i < self.m_num_tokens {
 			
 			if let pgn_tokenizer::TokenType::VariantDelim { open: false } = &self.m_token_types[i] {
-				self.remove_token(i);
+				self.retrieve_token(i);
 				return ParseResult { game: Some(g), next: i + 1 };
 			}
 			
@@ -274,12 +274,12 @@ impl PGNTreeBuilder {
 
 		let mut i = 0;
 		while let pgn_tokenizer::TokenType::TagDelim { open: true } = &self.m_token_types[i] {
-			self.remove_token(i);
+			self.retrieve_token(i);
 
-			let tag_type = game::classify(self.remove_token(i + 1));
-			g.add_game_tag((tag_type, self.remove_token(i + 2)));
+			let tag_type = game::classify(self.retrieve_token(i + 1));
+			g.add_game_tag((tag_type, self.retrieve_token(i + 2)));
 
-			self.remove_token(i + 3);
+			self.retrieve_token(i + 3);
 
 			i += 4;
 		}

@@ -95,14 +95,6 @@ pub fn read_string() -> String {
 	}
 }
 
-pub fn read_int() -> u32 {
-	loop {
-		if let Ok(value) = read_string().parse::<u32>() {
-			return value;
-		}
-	}
-}
-
 fn main() {
 	let args: Vec<String> = env::args().collect();
 	
@@ -112,31 +104,41 @@ fn main() {
 	let mut end: bool = false;
 	while !end {
 		
-		println!("Set time for move: {}", gt.get_move_text());
-		let _min = read_int();
-		let hours = _min/60;
-		let minutes = _min%60;
+		println!("Set time for move: {} {}", gt.get_move_number(), gt.get_move_text());
+		let _min_str = read_string();
+		if _min_str == "-" {
+			break;
+		}
 
-		let clock =
-			hours.to_string() + ":" +
-			if minutes < 10 { "0" } else { "" } +
-			&minutes.to_string() +
-			":00";
-
-		gt.add_comment(
-			comment::Comment::new_data(
-				"".to_string(),
-				vec![
-					(comment::TagType::Clock, clock)
-				]
-			)
-		);
-
-		if gt.has_next_move() {
-			gt = &mut *gt.get_next_move_mut().as_mut().unwrap();
+		if let Ok(_min) = _min_str.parse::<u32>() {
+			let hours = _min/60;
+			let minutes = _min%60;
+	
+			let clock =
+				hours.to_string() + ":" +
+				if minutes < 10 { "0" } else { "" } +
+				&minutes.to_string() +
+				":00";
+	
+			gt.add_comment(
+				comment::Comment::new_data(
+					"".to_string(),
+					vec![
+						(comment::TagType::Clock, clock)
+					]
+				)
+			);
+	
+			if gt.has_next_move() {
+				gt = &mut *gt.get_next_move_mut().as_mut().unwrap();
+			}
+			else {
+				end = true;
+			}
 		}
 		else {
-			end = true;
+			println!("Could not parse number '{_min_str}'");
+			break;
 		}
 	}
 

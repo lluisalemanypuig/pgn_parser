@@ -115,8 +115,13 @@ impl GameTree {
 	pub fn get_side(&self) -> &Option<pgn_tokenizer::Side> { &self.m_side }
 	pub fn get_move_text(&self) -> &String { &self.m_game_move }
 	pub fn get_move_number(&self) -> &u32 { &self.m_move_number }
+	
 	pub fn get_next_move(&self) -> &Option<Box<GameTree>> { &self.m_next }
 	pub fn get_next_move_mut(&mut self) -> &mut Option<Box<GameTree>> { &mut self.m_next }
+	pub fn has_next_move(&self) -> bool {
+		self.m_next.is_some()
+	}
+
 	//pub fn is_move_empty(&self) -> bool { !self.is_result() && self.m_game_move == "".to_string() }
 	pub fn is_result(&self) -> bool { self.m_is_result }
 	pub fn get_variations(&self) -> &Vec<GameTree> { &self.m_variations }
@@ -208,5 +213,8 @@ impl Game {
 
 	pub fn get_tree(&self) -> &GameTree {
 		&self.m_tree
+	}
+	pub fn get_tree_mut(&mut self) -> &mut GameTree {
+		&mut self.m_tree
 	}
 }

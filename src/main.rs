@@ -20,7 +20,6 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with PGN Parser.  If not, see <http://www.gnu.org/licenses/>.
- *
  * Contact:
  *
  *     Lluís Alemany Puig
@@ -28,10 +27,13 @@
  *         https://github.com/lluisalemanypuig
  *         lluisalemanypuig.github.io
  *
+ *
  ********************************************************************/
 
 use std::env;
 use std::io::BufRead;
+
+use std::str::FromStr;
 
 mod comment;
 mod game;
@@ -39,7 +41,7 @@ mod pgn_formatter;
 mod pgn_tokenizer;
 mod pgn_tree_builder;
 
-fn analyze_file(p: String) {
+fn analyze_file(p: String) -> game::Game {
 	let mut entire_file_str = String::new();
 	
 	let file = std::fs::File::open(p).expect("Failed to open file");
@@ -51,13 +53,13 @@ fn analyze_file(p: String) {
 	let (all_tokens, all_token_types) =
 		pgn_tokenizer::tokenize(entire_file_str);
 
-	println!("{:#?}", all_token_types);
+	//println!("{:#?}", all_token_types);
 
 	let mut builder = pgn_tree_builder::PGNTreeBuilder::new();
 	builder.set_token_list(all_tokens, all_token_types);
 
+	/*
 	if let Some(game) = builder.build_game() {
-		//println!("{:#?}", game);
 		let res = pgn_formatter::PgnFormatter::new()
 			.set_print_comments(true)
 			.set_print_variation(true)
@@ -67,10 +69,84 @@ fn analyze_file(p: String) {
 		println!("{res}");
 		println!("");
 	}
+	*/
+
+	builder.build_game().unwrap()
+}
+
+pub fn read_input_string() -> String {
+	let mut s = String::new();
+	let stdin = std::io::stdin();
+	stdin.read_line(&mut s).expect("I was expecting standard input");
+	s.trim().to_string()
+}
+
+pub fn read_string_or_empty() -> Option<String> {
+	let str = read_input_string();
+	if str == "".to_string() { return None; }
+	Some(str)
+}
+
+pub fn read_string() -> String {
+	loop {
+		if let Some(str) = read_string_or_empty() {
+			break str;
+		}
+	}
+}
+
+pub fn read_int() -> u32 {
+	loop {
+		if let Ok(value) = read_string().parse::<u32>() {
+			return value;
+		}
+	}
 }
 
 fn main() {
 	let args: Vec<String> = env::args().collect();
 	
-	analyze_file(args[1].clone());
+	let mut g = analyze_file(args[1].clone());
+	let mut gt = g.get_tree_mut();
+
+	let mut end: bool = false;
+	while !end {
+		
+		println!("Set time for move: {}", gt.get_move_text());
+		let _min = read_int();
+		let hours = _min/60;
+		let minutes = _min%60;
+
+		let clock =
+			hours.to_string() + ":" +
+			if minutes < 10 { "0" } else { "" } +
+			&minutes.to_string() +
+			":00";
+
+		gt.add_comment(
+			comment::Comment::new_data(
+				"".to_string(),
+				vec![
+					(comment::TagType::Clock, clock)
+				]
+			)
+		);
+
+		if gt.has_next_move() {
+			gt = &mut *gt.get_next_move_mut().as_mut().unwrap();
+		}
+		else {
+			end = true;
+		}
+	}
+
+	let res = pgn_formatter::PgnFormatter::new()
+		.set_print_comments(true)
+		.set_print_variation(true)
+		.set_print_result(true)
+		.to_string(g.get_tree());
+
+	println!("{res}");
+	println!("");
+
 }

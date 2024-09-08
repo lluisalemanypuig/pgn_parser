@@ -44,14 +44,15 @@ enum CharacterType {
 	Other
 }
 
-fn classify_char(c: char) -> CharacterType {
+fn classify_char(c: char, in_comment: bool) -> CharacterType {
+	
 	match c {
-		'0'..='9' => CharacterType::Number,
-		'A'..='Z' => CharacterType::Letter,
-		'a'..='z' => CharacterType::Letter,
-		'"' => CharacterType::Quote,
-		'(' => CharacterType::Parenthesis(true),
-		')' => CharacterType::Parenthesis(false),
+		'0'..='9' => if in_comment { CharacterType::Other } else { CharacterType::Number },
+		'A'..='Z' => if in_comment { CharacterType::Other } else { CharacterType::Letter },
+		'a'..='z' => if in_comment { CharacterType::Other } else { CharacterType::Letter },
+		'"' => if in_comment { CharacterType::Other } else { CharacterType::Quote },
+		'(' => if in_comment { CharacterType::Other } else { CharacterType::Parenthesis(true) },
+		')' => if in_comment { CharacterType::Other } else { CharacterType::Parenthesis(false) },
 		'{' => CharacterType::CurlyBracket(true),
 		'}' => CharacterType::CurlyBracket(false),
 		'[' => CharacterType::SquareBracket(true),
@@ -143,10 +144,11 @@ pub fn tokenize(s: String) -> (AllTokens, AllTokenTypes) {
 
 	let mut next_str: String = String::new();
 
+	let mut in_comment = false;
 	let mut open_quote = false;
 	for c in s.chars() {
 		
-		match classify_char(c) {
+		match classify_char(c, in_comment) {
 			CharacterType::Number |
 			CharacterType::Letter |
 			CharacterType::Other => next_str.push(c),
@@ -182,6 +184,8 @@ pub fn tokenize(s: String) -> (AllTokens, AllTokenTypes) {
 				}
 			},
 			CharacterType::CurlyBracket(o) => {
+				in_comment = o;
+
 				if !open_quote {
 					if next_str != "".to_string() {
 						add_token(next_str, &mut tokens, &mut token_types);

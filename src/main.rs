@@ -33,8 +33,6 @@
 use std::env;
 use std::io::BufRead;
 
-use std::str::FromStr;
-
 mod comment;
 mod game;
 mod pgn_formatter;

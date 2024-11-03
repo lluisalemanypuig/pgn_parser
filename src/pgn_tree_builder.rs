@@ -186,7 +186,7 @@ impl PGNTreeBuilder {
 		else if expect_move_id {
 			panic!(
 				"I was expecting a move id at move number '{move_number}', side '{:#?}'. \
-				Instead, I found token '{:#?}' of type '{:#?}'. \
+				Instead, I found token {:#?} of type '{:#?}'. \
 				Your pgn is probably malformed.",
 				side,
 				self.retrieve_token(i),

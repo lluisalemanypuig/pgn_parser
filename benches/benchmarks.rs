@@ -37,12 +37,20 @@ fn make_game(file: String) -> game::GameTree {
 // Set up the benchmark using Criterion's macros.
 fn criterion_benchmark(c: &mut Criterion) {
 	c.bench_function(
-		"Make a game from caro_kann_study_1",
+		"Caro-Kann study 1",
 		|b| {
 			b.iter(|| make_game(black_box("benches/caro_kann_study.pgn".to_string())))
 		}
 	);
 }
 
-criterion_group!(benches, criterion_benchmark);
+fn custom_criterion() -> Criterion {
+    Criterion::default().measurement_time(std::time::Duration::from_secs(30))
+}
+
+criterion_group! {
+	name = benches;
+	config = custom_criterion();
+	targets = criterion_benchmark
+}
 criterion_main!(benches);

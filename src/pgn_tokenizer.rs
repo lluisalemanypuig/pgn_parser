@@ -41,6 +41,7 @@ enum CharacterType {
 	CurlyBracket(bool),
 	SquareBracket(bool),
 	Parenthesis(bool),
+	Asterisk,
 	Other
 }
 
@@ -58,6 +59,7 @@ fn classify_char(c: char, in_comment: bool) -> CharacterType {
 		'[' => CharacterType::SquareBracket(true),
 		']' => CharacterType::SquareBracket(false),
 		' ' | '　' => CharacterType::Whitespace,
+		'*' => CharacterType::Asterisk,
 		_ =>  CharacterType::Other
 	}
 }
@@ -73,7 +75,7 @@ pub fn other_side(s: &Side) -> Side {
 }
 
 #[derive(Debug,PartialEq)]
-pub enum ResultType { White, Draw, Black }
+pub enum ResultType { White, Draw, Black, Unknown }
 
 #[derive(Debug,PartialEq)]
 pub enum TokenType {
@@ -102,6 +104,10 @@ fn is_move_number(str: &String) -> Option<TokenType> {
 }
 
 fn is_result_tag(str: &String) -> Option<TokenType> {
+	if str == "*" {
+		return Some(TokenType::Result { result: ResultType::Unknown })
+	}
+	
 	if !str.contains("-") {
 		return None;
 	}
@@ -109,15 +115,14 @@ fn is_result_tag(str: &String) -> Option<TokenType> {
 	if str == "1-0" {
 		return Some(TokenType::Result { result: ResultType::White })
 	}
-	else if str == "1/2-1/2" {
+	if str == "1/2-1/2" {
 		return Some(TokenType::Result { result: ResultType::Draw })
 	}
-	else if str == "0-1" {
+	if str == "0-1" {
 		return Some(TokenType::Result { result: ResultType::Black })
 	}
-	else {
-		return None
-	}
+
+	return None
 }
 
 fn add_token(s: String, tokens: &mut AllTokens, token_types: &mut AllTokenTypes) {
@@ -151,6 +156,7 @@ pub fn tokenize(s: String) -> (AllTokens, AllTokenTypes) {
 		match classify_char(c, in_comment) {
 			CharacterType::Number |
 			CharacterType::Letter |
+			CharacterType::Asterisk |
 			CharacterType::Other => next_str.push(c),
 
 			CharacterType::Quote => {

@@ -184,7 +184,14 @@ impl PGNTreeBuilder {
 			i += 1;
 		}
 		else if expect_move_id {
-			panic!("I was expecting a move id at move number '{move_number}', side '{:#?}'! Your pgn is probably malformed.", side);
+			panic!(
+				"I was expecting a move id at move number '{move_number}', side '{:#?}'. \
+				Instead, I found token '{:#?}' of type '{:#?}'. \
+				Your pgn is probably malformed.",
+				side,
+				self.retrieve_token(i),
+				self.m_token_types[i]
+			);
 		}
 		
 		g.set_move_text(self.retrieve_token(i), &side, move_number);

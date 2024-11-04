@@ -33,16 +33,18 @@
 use crate::comment;
 use crate::pgn_tokenizer;
 
+#[repr(C)]
 #[derive(Debug,Eq,PartialEq)]
 pub struct GameTree {
 	m_game_move: String,
-	m_is_result: bool,
-	m_move_number: u32,
-	m_side: Option<pgn_tokenizer::Side>,
-	m_comments: Vec<comment::Comment>,
-	
 	m_next: Option<Box<GameTree>>,
 	m_variations: Vec<GameTree>,
+
+	m_comments: Vec<comment::Comment>,
+	m_move_number: u16,
+
+	m_side: Option<pgn_tokenizer::Side>,
+	m_is_result: bool,
 }
 
 impl GameTree {
@@ -61,7 +63,7 @@ impl GameTree {
 	pub fn new_data(
 		game_move: String,
 		is_result: bool,
-		move_number: u32,
+		move_number: u16,
 		side: Option<pgn_tokenizer::Side>,
 		comments: Vec<comment::Comment>,
 		main_line_next: Option<Box<GameTree>>,
@@ -84,7 +86,7 @@ impl GameTree {
 	/* MODIFIERS */
 
 	pub fn set_move_text
-	(&mut self, text: String, s: &pgn_tokenizer::Side, num: u32)
+	(&mut self, text: String, s: &pgn_tokenizer::Side, num: u16)
 	{
 		self.m_game_move = text;
 		self.m_side = Some(s.clone());
@@ -114,7 +116,7 @@ impl GameTree {
 	
 	pub fn get_side(&self) -> &Option<pgn_tokenizer::Side> { &self.m_side }
 	pub fn get_move_text(&self) -> &String { &self.m_game_move }
-	pub fn get_move_number(&self) -> &u32 { &self.m_move_number }
+	pub fn get_move_number(&self) -> &u16 { &self.m_move_number }
 	
 	pub fn get_next_move(&self) -> &Option<Box<GameTree>> { &self.m_next }
 	pub fn get_next_move_mut(&mut self) -> &mut Option<Box<GameTree>> { &mut self.m_next }

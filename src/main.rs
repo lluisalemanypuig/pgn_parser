@@ -51,8 +51,6 @@ fn analyze_file(p: String) -> game::Game {
 	let (all_tokens, all_token_types) =
 		pgn_tokenizer::tokenize(entire_file_str);
 
-	//println!("{:#?}", all_token_types);
-
 	let mut builder = pgn_tree_builder::PGNTreeBuilder::new();
 	builder.set_token_list(all_tokens, all_token_types);
 

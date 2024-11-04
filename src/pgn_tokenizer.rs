@@ -82,7 +82,7 @@ pub enum TokenType {
 	VariantDelim { open: bool },
 	CommentDelim { open: bool },
 	TagDelim { open: bool },
-	MoveNumber { id: u32, side: Side },
+	MoveNumber { id: u16, side: Side },
 	Text,
 	Result { result: ResultType }
 }
@@ -90,11 +90,11 @@ pub enum TokenType {
 pub type AllTokens = Vec<String>;
 pub type AllTokenTypes = Vec<TokenType>;
 
-fn is_move_number(str: &String) -> Option<TokenType> {
+fn is_move_number(s: &String) -> Option<TokenType> {
 	let re = Regex::new(r"^(?<move_number>[0-9]+)(?<side>\.+)$").unwrap();
-	if let Some(capture) = re.captures(str) {
+	if let Some(capture) = re.captures(s) {
 		Some(TokenType::MoveNumber{
-			id: capture["move_number"].parse::<u32>().unwrap(),
+			id: capture["move_number"].parse::<u16>().unwrap(),
 			side: if capture["side"] == ".".to_string() { Side::White } else { Side::Black }
 		})
 	}
@@ -103,22 +103,22 @@ fn is_move_number(str: &String) -> Option<TokenType> {
 	}
 }
 
-fn is_result_tag(str: &String) -> Option<TokenType> {
-	if str == "*" {
+fn is_result_tag(s: &String) -> Option<TokenType> {
+	if s == "*" {
 		return Some(TokenType::Result { result: ResultType::Unknown })
 	}
 	
-	if !str.contains("-") {
+	if !s.contains("-") {
 		return None;
 	}
 	
-	if str == "1-0" {
+	if s == "1-0" {
 		return Some(TokenType::Result { result: ResultType::White })
 	}
-	if str == "1/2-1/2" {
+	if s == "1/2-1/2" {
 		return Some(TokenType::Result { result: ResultType::Draw })
 	}
-	if str == "0-1" {
+	if s == "0-1" {
 		return Some(TokenType::Result { result: ResultType::Black })
 	}
 
@@ -164,7 +164,7 @@ pub fn tokenize(s: String) -> (AllTokens, AllTokenTypes) {
 				if open_quote {
 					open_quote = false;
 					add_token(next_str, &mut tokens, &mut token_types);
-					next_str = "".to_string();
+					next_str = String::new();
 				}
 				else {
 					open_quote = true;
@@ -175,7 +175,7 @@ pub fn tokenize(s: String) -> (AllTokens, AllTokenTypes) {
 				if !open_quote {
 					if next_str != "".to_string() {
 						add_token(next_str, &mut tokens, &mut token_types);
-						next_str = "".to_string();
+						next_str = String::new();
 					}
 				}
 			},
@@ -186,7 +186,7 @@ pub fn tokenize(s: String) -> (AllTokens, AllTokenTypes) {
 					}
 					tokens.push(c.to_string());
 					token_types.push(TokenType::VariantDelim{open: o});
-					next_str = "".to_string();
+					next_str = String::new();
 				}
 			},
 			CharacterType::CurlyBracket(o) => {
@@ -198,7 +198,7 @@ pub fn tokenize(s: String) -> (AllTokens, AllTokenTypes) {
 					}
 					tokens.push(c.to_string());
 					token_types.push(TokenType::CommentDelim{open: o});
-					next_str = "".to_string();
+					next_str = String::new();
 				}
 			},
 			CharacterType::SquareBracket(o) => {
@@ -208,7 +208,7 @@ pub fn tokenize(s: String) -> (AllTokens, AllTokenTypes) {
 					}
 					tokens.push(c.to_string());
 					token_types.push(TokenType::TagDelim{open: o});
-					next_str = "".to_string();
+					next_str = String::new();
 				}
 			}
 		}

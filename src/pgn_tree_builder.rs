@@ -62,14 +62,12 @@ impl PGNTreeBuilder {
 	{
 		assert_eq!(self.m_tokens.len(), self.m_token_types.len());
 		self.m_tokens = tokens;
-		self.m_tokens.reverse();
 		self.m_token_types = token_types;
 		self.m_num_tokens = self.m_tokens.len();
 	}
 	
-	fn token_index(&self, i: usize) -> usize { self.m_num_tokens - i - 1 }
 	fn retrieve_token(&mut self, i: usize) -> String {
-		self.m_tokens.remove(self.token_index(i))
+		std::mem::replace(&mut self.m_tokens[i], String::new())
 	}
 	
 	fn parse_comment_tag(&mut self, mut i: usize) -> (usize, String, String) {
@@ -87,7 +85,6 @@ impl PGNTreeBuilder {
 				
 				pgn_tokenizer::TokenType::TagDelim { open: false } => {
 					stop = true;
-					self.retrieve_token(i);
 					i += 1;
 				},
 				
@@ -102,6 +99,7 @@ impl PGNTreeBuilder {
 		
 		(i, tag_name, text_tag)
 	}
+	
 	fn parse_comment(&mut self, mut i: usize) -> (comment::Comment, usize) {
 		let mut com = comment::Comment::new();
 		let mut text_comment = String::new();
@@ -113,12 +111,10 @@ impl PGNTreeBuilder {
 			match &self.m_token_types[i] {
 				pgn_tokenizer::TokenType::CommentDelim { open: false } => {
 					stop = true;
-					self.retrieve_token(i);
 					i += 1;
 				},
 				
 				pgn_tokenizer::TokenType::TagDelim { open: true } => {
-					self.retrieve_token(i);
 					i += 1;
 					
 					let (next, tag_name, tag_text) = self.parse_comment_tag(i);
@@ -158,8 +154,8 @@ impl PGNTreeBuilder {
 	fn build_game_tree_rec(
 		&mut self,
 		mut i: usize,
+		move_number: u16,
 		expect_move_id: bool,
-		move_number: u32,
 		side: pgn_tokenizer::Side
 	)
 	->	ParseResult
@@ -178,7 +174,6 @@ impl PGNTreeBuilder {
 		if let pgn_tokenizer::TokenType::MoveNumber { id, side: sid } = &self.m_token_types[i] {
 			assert_eq!(move_number, *id);
 			assert_eq!(side, *sid);
-			self.retrieve_token(i);
 			i += 1;
 		}
 		else if expect_move_id {
@@ -187,7 +182,7 @@ impl PGNTreeBuilder {
 				Instead, I found token {:#?} of type '{:#?}'. \
 				Your pgn is probably malformed.",
 				side,
-				self.retrieve_token(i),
+				self.m_tokens[i],
 				self.m_token_types[i]
 			);
 		}
@@ -203,12 +198,10 @@ impl PGNTreeBuilder {
 				pgn_tokenizer::TokenType::VariantDelim { open: true } => {
 					found_variant_comment = true;
 
-					self.retrieve_token(i);
-					
 					let parse = self.build_game_tree_rec(
 						i + 1,
-						true,
 						move_number,
+						true,
 						side.clone()
 					);
 					
@@ -224,7 +217,6 @@ impl PGNTreeBuilder {
 				pgn_tokenizer::TokenType::CommentDelim { open: true } => {
 					found_variant_comment = true;
 
-					self.retrieve_token(i);
 					i += 1;
 					
 					let (comment, next) = self.parse_comment(i);
@@ -239,15 +231,15 @@ impl PGNTreeBuilder {
 		if i < self.m_num_tokens {
 			
 			if let pgn_tokenizer::TokenType::VariantDelim { open: false } = &self.m_token_types[i] {
-				self.retrieve_token(i);
 				return ParseResult { game: Some(g), next: i + 1 };
 			}
 			
 			let next_side = pgn_tokenizer::other_side(&side);
+			let next_move = move_number + if next_side == pgn_tokenizer::Side::White { 1 } else { 0 };
 			let parse = self.build_game_tree_rec(
 				i,
+				next_move,
 				found_variant_comment,
-				move_number + if next_side == pgn_tokenizer::Side::White { 1 } else { 0 },
 				next_side
 			);
 			
@@ -264,12 +256,10 @@ impl PGNTreeBuilder {
 
 		let parse_result = self.build_game_tree_rec(
 			i,
-			true,
 			1,
+			true,
 			pgn_tokenizer::Side::White
 		);
-		
-		assert_eq!(self.m_tokens.len(), 0);
 		
 		parse_result.game
 	}
@@ -279,12 +269,8 @@ impl PGNTreeBuilder {
 
 		let mut i = 0;
 		while let pgn_tokenizer::TokenType::TagDelim { open: true } = &self.m_token_types[i] {
-			self.retrieve_token(i);
-
 			let tag_type = game::classify(self.retrieve_token(i + 1));
 			g.add_game_tag((tag_type, self.retrieve_token(i + 2)));
-
-			self.retrieve_token(i + 3);
 
 			i += 4;
 		}

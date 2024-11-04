@@ -102,9 +102,7 @@ impl PGNTreeBuilder {
 		
 		(i, tag_name, text_tag)
 	}
-	fn parse_comment(&mut self, mut i: usize)
-	-> (comment::Comment, usize)
-	{
+	fn parse_comment(&mut self, mut i: usize) -> (comment::Comment, usize) {
 		let mut com = comment::Comment::new();
 		let mut text_comment = String::new();
 		
